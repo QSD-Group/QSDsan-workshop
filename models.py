@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-EXPOsan: Exposition of sanitation and resource recovery systems
+QSDsan: Quantitative Sustainable Design for sanitation and resource recovery systems
 
 This module is developed by:
     Yalin Li <zoe.yalin.li@gmail.com>
@@ -24,7 +24,7 @@ Ref:
 
 # %%
 
-import numpy as np, pandas as pd
+import os, numpy as np, pandas as pd
 from chaospy import distributions as shape
 from thermosteam.functional import V_to_rho, rho_to_V
 from biosteam.evaluation import Model, Metric
@@ -33,6 +33,8 @@ from qsdsan.utils import (
     ospath, load_data, data_path, dct_from_str,
     AttrSetter, DictAttrSetter,
     )
+
+dir_path = os.path.dirname(__file__)
 
 
 # %%
@@ -48,17 +50,17 @@ price_dct = systems.price_dct
 GWP_dct = systems.GWP_dct
 get_recovery = systems.get_recovery
 get_cost = systems.get_daily_cap_cost
-get_GHG = systems.get_daily_cap_GHG
+get_ghg = systems.get_daily_cap_ghg
 
 def add_LCA_metrics(system, metrics):
     unit = 'g CO2-e/cap/d'
     cat = 'LCA results'
     metrics.extend([
-        Metric('Net', lambda: get_GHG(system, 'net', False), unit, cat),
-        Metric('Construction', lambda: get_GHG(system, 'construction', False), unit, cat),
-        Metric('Transportation', lambda: get_GHG(system, 'transportation', False), unit, cat),
-        Metric('Direct', lambda: get_GHG(system, 'direct', False), unit, cat),
-        Metric('Offset', lambda: get_GHG(system, 'offset', False), unit, cat),
+        Metric('Net', lambda: get_ghg(system, 'net', False), unit, cat),
+        Metric('Construction', lambda: get_ghg(system, 'construction', False), unit, cat),
+        Metric('Transportation', lambda: get_ghg(system, 'transportation', False), unit, cat),
+        Metric('Direct', lambda: get_ghg(system, 'direct', False), unit, cat),
+        Metric('Offset', lambda: get_ghg(system, 'offset', False), unit, cat),
         ])
     return metrics
 
@@ -117,22 +119,19 @@ def batch_setting_unit_params(df, model, unit, exclude=()):
 # =============================================================================
 
 su_data_path = ospath.join(data_path, 'sanunit_data/')
-path = ospath.join(su_data_path, '_drying_bed.tsv')
-drying_bed_data = load_data(path)
 get_exchange_rate = systems.get_exchange_rate
 get_decay_k = systems.get_decay_k
 tau_deg = systems.tau_deg
 log_deg = systems.log_deg
 
-#!!! Add a `country_specific` kwarg
 def add_shared_parameters(model, crop_application_unit):
     ########## Related to multiple units ##########
     sys = model.system
-    Excretion, Toilet = sys.path[0], sys.path[1]
     param = model.parameter
     tea = sys.TEA
 
     # UGX-to-USD
+    Excretion = sys.path[0]
     b = get_exchange_rate()
     D = shape.Triangle(lower=3600, midpoint=b, upper=3900)
     @param(name='Exchange rate', element=Excretion, kind='cost', units='UGX/USD',
@@ -147,6 +146,7 @@ def add_shared_parameters(model, crop_application_unit):
     batch_setting_unit_params(excretion_data, model, Excretion)
 
     # Household size
+    Toilet = sys.path[1]
     b = systems.household_size
     D = shape.Trunc(shape.Normal(mu=b, sigma=1.8), lower=1)
     @param(name='Household size', element=Toilet, kind='coupled', units='cap/household',
@@ -359,7 +359,7 @@ def add_LCA_CF_parameters(model):
     def set_K_fertilizer_CF(i):
         GWP_dct['K'] = ImpactItem.get_item('K_item').CFs['GlobalWarming'] = -i
 
-    data = load_data('items_original.xlsx', sheet='GWP')
+    data = load_data('data/impact_items.xlsx', sheet='GWP')
     for p in data.index:
         item = ImpactItem.get_item(p)
         b = item.CFs['GlobalWarming']
@@ -456,15 +456,12 @@ def add_pit_latrine_parameters(model):
 # Pit latrine
 # =============================================================================
 
-modelA = Model(sysA, add_metrics(sysA))
-paramA = modelA.parameter
-
-# Shared parameters
-modelA = add_shared_parameters(modelA, systems.A4)
-modelA = add_LCA_CF_parameters(modelA)
-
-# Pit latrine and conveyance
-modelA = add_pit_latrine_parameters(modelA)
+def create_modelA(**model_kwargs):
+    modelA = Model(sysA, add_metrics(sysA), **model_kwargs)
+    modelA = add_shared_parameters(modelA, systems.A4)
+    modelA = add_LCA_CF_parameters(modelA)
+    modelA = add_pit_latrine_parameters(modelA)
+    return modelA
 
 
 # %%
@@ -473,63 +470,110 @@ modelA = add_pit_latrine_parameters(modelA)
 # UDDT
 # =============================================================================
 
-modelB = Model(sysB, add_metrics(sysB))
-paramB = modelB.parameter
+def create_modelB(**model_kwargs):
+    modelB = Model(sysB, add_metrics(sysB), **model_kwargs)
+    paramB = modelB.parameter
+    modelB = add_shared_parameters(modelB, systems.B5)
+    modelB = add_LCA_CF_parameters(modelB)
 
-# Add shared parameters
-modelB = add_shared_parameters(modelB, systems.B5)
-modelB = add_LCA_CF_parameters(modelB)
+    # UDDT
+    B2 = systems.B2
+    path = ospath.join(su_data_path, '_uddt.tsv')
+    uddt_data = load_data(path)
+    batch_setting_unit_params(uddt_data, modelB, B2)
 
-# UDDT
-B2 = systems.B2
-path = ospath.join(su_data_path, '_uddt.tsv')
-uddt_data = load_data(path)
-batch_setting_unit_params(uddt_data, modelB, B2)
+    b = B2.CAPEX
+    D = shape.Uniform(lower=476, upper=630)
+    @paramB(name='UDDT capital cost', element=B2, kind='cost',
+           units='USD/toilet', baseline=b, distribution=D)
+    def set_UDDT_CAPEX(i):
+        B2.CAPEX = i
 
-b = B2.CAPEX
-D = shape.Uniform(lower=476, upper=630)
-@paramB(name='UDDT capital cost', element=B2, kind='cost',
-       units='USD/toilet', baseline=b, distribution=D)
-def set_UDDT_CAPEX(i):
-    B2.CAPEX = i
+    b = B2.OPEX_over_CAPEX
+    D = shape.Uniform(lower=0.05, upper=0.1)
+    @paramB(name='UDDT annual operating cost', element=B2, kind='cost',
+           units='fraction of capital cost', baseline=b, distribution=D)
+    def set_UDDT_OPEX(i):
+        B2.OPEX_over_CAPEX = i
 
-b = B2.OPEX_over_CAPEX
-D = shape.Uniform(lower=0.05, upper=0.1)
-@paramB(name='UDDT annual operating cost', element=B2, kind='cost',
-       units='fraction of capital cost', baseline=b, distribution=D)
-def set_UDDT_OPEX(i):
-    B2.OPEX_over_CAPEX = i
+    # Conveyance
+    B3 = systems.B3
+    B4 = systems.B4
+    b = B3.loss_ratio
+    D = shape.Uniform(lower=0.02, upper=0.05)
+    @paramB(name='Transportation loss', element=B3, kind='coupled', units='fraction',
+           baseline=b, distribution=D)
+    def set_trans_loss(i):
+        B3.loss_ratio = B4.loss_ratio = i
 
-# Conveyance
-B3 = systems.B3
-B4 = systems.B4
-b = B3.loss_ratio
-D = shape.Uniform(lower=0.02, upper=0.05)
-@paramB(name='Transportation loss', element=B3, kind='coupled', units='fraction',
-       baseline=b, distribution=D)
-def set_trans_loss(i):
-    B3.loss_ratio = B4.loss_ratio = i
+    b = B3.single_truck.distance
+    D = shape.Uniform(lower=2, upper=10)
+    @paramB(name='Transportation distance', element=B3, kind='coupled', units='km',
+           baseline=b, distribution=D)
+    def set_trans_distance(i):
+        B3.single_truck.distance = B4.single_truck.distance = i
 
-b = B3.single_truck.distance
-D = shape.Uniform(lower=2, upper=10)
-@paramB(name='Transportation distance', element=B3, kind='coupled', units='km',
-       baseline=b, distribution=D)
-def set_trans_distance(i):
-    B3.single_truck.distance = B4.single_truck.distance = i
+    b = systems.handcart_fee
+    D = shape.Uniform(lower=0.004, upper=0.015)
+    @paramB(name='Handcart fee', element=B3, kind='cost', units='USD/cap/d',
+           baseline=b, distribution=D)
+    def set_handcart_fee(i):
+        systems.handcart_fee = i
 
-b = systems.handcart_fee
-D = shape.Uniform(lower=0.004, upper=0.015)
-@paramB(name='Handcart fee', element=B3, kind='cost', units='USD/cap/d',
-       baseline=b, distribution=D)
-def set_handcart_fee(i):
-    systems.handcart_fee = i
+    b = systems.truck_fee
+    D = shape.Uniform(lower=17e3, upper=30e3)
+    @paramB(name='Truck fee', element=B3, kind='cost', units='UGX/m3',
+           baseline=b, distribution=D)
+    def set_truck_fee(i):
+        systems.truck_fee = i
 
-b = systems.truck_fee
-D = shape.Uniform(lower=17e3, upper=30e3)
-@paramB(name='Truck fee', element=B3, kind='cost', units='UGX/m3',
-       baseline=b, distribution=D)
-def set_truck_fee(i):
-    systems.truck_fee = i
+    return modelB
+
+country_params = {
+    'Caloric intake': 'Excretion e cal',
+    'Vegetable protein intake': 'Excretion p veg',
+    'Animal protein intake': 'Excretion p anim',
+    'Food waste ratio': 'Food waste ratio', # not in the original model
+    'Price level ratio': 'Price level ratio', # not in the original model
+    'N fertilizer price': 'N fertilizer price',
+    'P fertilizer price': 'P fertilizer price',
+    'K fertilizer price': 'K fertilizer price',
+    'Income tax': 'Income tax', # not in the original model
+    }
+def create_model(model_ID='A', country_specific=False, **model_kwargs):
+    model_ID = model_ID.lstrip('model').lstrip('sys') # so that it'll work for "modelA"/"sysA"/"A"
+    if model_ID == 'A': model = create_modelA(**model_kwargs)
+    elif model_ID == 'B': model = create_modelB(**model_kwargs)
+    else: raise ValueError(f'`model_ID` can only be "A" or "B", not "{model_ID}".')
+    if country_specific: # add the remaining three more country-specific parameters
+        # model.parameters = [p for p in model.parameters if p.name not in country_params.values()]
+        param = model.parameter
+        system = model.system
+
+        unit = system.path[0]
+        b = unit.waste_ratio
+        D = shape.Uniform(lower=b*0.9, upper=b*1.1)
+        @param(name='Food waste ratio', element=unit, kind='cost', units='fraction',
+               baseline=b, distribution=D)
+        def set_food_waste_ratio(i):
+            unit.waste_ratio = i
+
+        b = systems.price_ratio
+        D = shape.Uniform(lower=b*0.9, upper=b*1.1)
+        @param(name='Price level ratio', element='TEA', kind='cost', units='fraction',
+               baseline=b, distribution=D)
+        def set_price_ratio(i):
+            systems.price_ratio = i
+
+        tea = system.TEA
+        b = tea.income_tax
+        D = shape.Uniform(lower=b*0.9, upper=b*1.1)
+        @param(name='Income tax', element='TEA', kind='cost', units='fraction',
+               baseline=b, distribution=D)
+        def set_income_tax(i):
+            tea.income_tax = i
+
+    return model
 
 
 # %%
@@ -540,7 +584,7 @@ def set_truck_fee(i):
 
 def run_uncertainty(model, N=1000, seed=None,rule='L',
                     percentiles=(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1),
-                    path='',
+                    file_path='',
                     only_load_samples=False,
                     only_organize_results=False):
     if not only_organize_results:
@@ -561,9 +605,12 @@ def run_uncertainty(model, N=1000, seed=None,rule='L',
     percentiles_df = results_df.quantile(q=percentiles)
     spearman_df = spearman_results
 
-    if path is not None:
-        path = path or f'sys{model._system.ID[-1]}_model.xlsx'
-        with pd.ExcelWriter(path) as writer:
+    if file_path is not None:
+        if not file_path:
+            results_path = os.path.join(dir_path, 'results')
+            if not os.path.isdir(results_path): os.mkdir(results_path)
+            file_path = os.path.join(results_path, f'{model.system.ID}_uncertainties.xlsx')
+        with pd.ExcelWriter(file_path) as writer:
             parameters_df.to_excel(writer, sheet_name='Parameters')
             results_df.to_excel(writer, sheet_name='Uncertainty results')
             percentiles_df.to_excel(writer, sheet_name='Percentiles')

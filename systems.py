@@ -98,6 +98,10 @@ app_loss['NH3'] = 0.05
 # Prices and GWP CFs
 # =============================================================================
 
+# To account for different in deployment locations
+price_ratio = 1
+get_price_ratio = lambda: price_ratio
+
 # Recycled nutrients are sold at a lower price than commercial fertilizers
 price_factor = 0.25
 get_price_factor = lambda: price_factor
@@ -121,12 +125,12 @@ GWP_dct = {
     'K': -1.5,
     }
 
-indicator_path = 'indicators_original.tsv'
+indicator_path = 'data/impact_indicators.tsv'
 qs.ImpactIndicator.load_from_file(indicator_path)
 indicators = qs.ImpactIndicator.get_all_indicators()
 GWP = ImpactIndicator.get_indicator('GWP')
 
-item_path = 'items_original.xlsx'
+item_path = 'data/impact_items.xlsx'
 qs.ImpactItem.load_from_file(item_path)
 items = qs.ImpactItem.get_all_items()
 
@@ -206,7 +210,7 @@ main_flowsheet.set_flowsheet(flowsheetA)
 streamsA = batch_create_streams(prefix='A')
 
 #################### Human Inputs ####################
-A1 = su.Excretion('A1', outs=('urine', 'feces'))
+A1 = su.Excretion('A1', outs=('urine', 'feces'), waste_ratio=0.02) # Uganda
 
 ################### User Interface ###################
 CH4_item = ImpactItem.get_item('CH4_item')
@@ -221,15 +225,15 @@ A2 = su.PitLatrine('A2', ins=(A1-0, A1-1,
                    OPEX_over_CAPEX=0.05,
                    decay_k_COD=get_decay_k(tau_deg, log_deg),
                    decay_k_N=get_decay_k(tau_deg, log_deg),
-                   max_CH4_emission=max_CH4_emission
-                   )
+                   max_CH4_emission=max_CH4_emission,
+                   price_ratio=get_price_ratio())
 A2.specification = lambda: update_toilet_param(A2)
 
 ##################### Conveyance #####################
 A3 = su.Trucking('A3', ins=A2-0, outs=('transported', 'conveyance_loss'),
                  load_type='mass', distance=5, distance_unit='km',
                  interval=A2.emptying_period, interval_unit='yr',
-                 loss_ratio=0.02)
+                 loss_ratio=0.02, price_ratio=get_price_ratio())
 def update_A3_param():
     A3._run()
     truck = A3.single_truck
@@ -238,6 +242,7 @@ def update_A3_param():
     rho = A3.F_mass_in/A3.F_vol_in
     vol = truck.load/rho
     A3.fee = get_tanker_truck_fee(vol)
+    A3.price_ratio = get_price_ratio()
     A3._design()
 A3.specification = update_A3_param
 
@@ -260,9 +265,9 @@ A7 = su.ComponentSplitter('A7', ins=A4-0,
 ############### Simulation, TEA, and LCA ###############
 sysA = System('sysA', path=flowsheetA.unit)
 
-teaA = SimpleTEA(system=sysA, discount_rate=discount_rate, start_year=2018,
-                 lifetime=get_lifetime(), uptime_ratio=1, lang_factor=None,
-                 annual_maintenance=0, annual_labor=0)
+teaA = SimpleTEA(system=sysA, discount_rate=discount_rate, income_tax=0.3, # Uganda
+                 start_year=2018, lifetime=get_lifetime(), uptime_ratio=1,
+                 lang_factor=None, annual_maintenance=0, annual_labor=0)
 
 lcaA = LCA(system=sysA, lifetime=get_lifetime(), lifetime_unit='yr', uptime_ratio=1,
            annualize_construction=True)
@@ -287,7 +292,7 @@ main_flowsheet.set_flowsheet(flowsheetB)
 streamsB = batch_create_streams('B')
 
 #################### Human Inputs ####################
-B1 = su.Excretion('B1', outs=('urine', 'feces'))
+B1 = su.Excretion('B1', outs=('urine', 'feces'), waste_ratio=0.02) # Uganda
 
 ################### User Interface ###################
 B2 = su.UDDT('B2', ins=(B1-0, B1-1,
@@ -299,7 +304,8 @@ B2 = su.UDDT('B2', ins=(B1-0, B1-1,
              OPEX_over_CAPEX=0.1,
              decay_k_COD=get_decay_k(tau_deg, log_deg),
              decay_k_N=get_decay_k(tau_deg, log_deg),
-             max_CH4_emission=max_CH4_emission)
+             max_CH4_emission=max_CH4_emission,
+             price_ratio=get_price_ratio())
 B2.specification = lambda: update_toilet_param(B2)
 
 ##################### Conveyance #####################
@@ -333,6 +339,7 @@ def update_B3_B4_param():
     rho4 = B4.F_mass_in/B4.F_vol_in
     B3.fee = get_handcart_and_truck_fee(truck3.load/rho3, ppl, True)
     B4.fee = get_handcart_and_truck_fee(truck4.load/rho4, ppl, False)
+    B3.price_ratio = B4.price_ratio = get_price_ratio()
     B3._design()
     B4._design()
 B4.specification = update_B3_B4_param
@@ -361,9 +368,9 @@ B9 = su.ComponentSplitter('B9', ins=B5-0,
 ############### Simulation, TEA, and LCA ###############
 sysB = System('sysB', path=flowsheetB.unit)
 
-teaB = SimpleTEA(system=sysB, discount_rate=discount_rate, start_year=2018,
-                 lifetime=get_lifetime(), uptime_ratio=1, lang_factor=None,
-                 annual_maintenance=0, annual_labor=0)
+teaB = SimpleTEA(system=sysB, discount_rate=discount_rate, income_tax=0.3, # Uganda
+                 start_year=2018, lifetime=get_lifetime(), uptime_ratio=1,
+                 lang_factor=None, annual_maintenance=0, annual_labor=0)
 
 lcaB = LCA(system=sysB, lifetime=get_lifetime(), lifetime_unit='yr', uptime_ratio=1,
            annualize_construction=True)
@@ -414,7 +421,7 @@ def get_daily_cap_cost(system, kind='net', print_msg=True):
     return cost
 
 
-def get_daily_cap_GHG(system, kind='net', print_msg=True):
+def get_daily_cap_ghg(system, kind='net', print_msg=True):
     lca = system.LCA
     ppl = get_ppl()
     ind_ID = 'GlobalWarming'
@@ -446,7 +453,7 @@ score_df = pd.DataFrame({
 def get_scores():
     for num, sys in enumerate((sysA, sysB)):
         score_df.loc[num, 'Econ'] = get_daily_cap_cost(sys, print_msg=False)
-        score_df.loc[num, 'Env'] = get_daily_cap_GHG(sys, print_msg=False)
+        score_df.loc[num, 'Env'] = get_daily_cap_ghg(sys, print_msg=False)
     return score_df
 
 alt_names = (sysA.ID, sysB.ID)
@@ -458,7 +465,7 @@ def update_criterion_weights(econ_weight):
     criterion_weights.Env = 1 - econ_weight
     return criterion_weights
 
-def run_MCDA(econ_weight=0.5, indicator_scores=None, print_msg=True):
+def run_mcda(econ_weight=0.5, indicator_scores=None, print_msg=True):
     mcda.indicator_scores = indicator_scores or mcda.indicator_scores
     mcda.run_MCDA(criterion_weights=update_criterion_weights(econ_weight))
     if print_msg:
@@ -473,5 +480,5 @@ def run_MCDA(econ_weight=0.5, indicator_scores=None, print_msg=True):
 if __name__ == '__main__':
     for sys in (sysA, sysB):
         get_daily_cap_cost(sys)
-        get_daily_cap_GHG(sys)
-    run_MCDA()
+        get_daily_cap_ghg(sys)
+    run_mcda()

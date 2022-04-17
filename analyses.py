@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-EXPOsan: Exposition of sanitation and resource recovery systems
+QSDsan: Quantitative Sustainable Design for sanitation and resource recovery systems
 
 This module is developed by:
     Yalin Li <zoe.yalin.li@gmail.com>
@@ -18,16 +18,19 @@ for license details.
 import systems, models
 from qsdsan.utils import copy_samples
 
-sysAB = sysA, sysB = systems.sysA, systems.sysB
+# sysAB = sysA, sysB = systems.sysA, systems.sysB
 # get_cost = systems.get_daily_cap_cost
-# get_GHG = systems.get_daily_cap_GHG
-# run_MCDA = systems.run_MCDA
+# get_ghg = systems.get_daily_cap_ghg
+# run_mcda = systems.run_mcda
 # for sys in (sysA, sysB):
 #     get_cost(sys)
-#     get_GHG(sys)
-# run_MCDA()
+#     get_ghg(sys)
+# run_mcda()
 
-modelAB = modelA, modelB = models.modelA, models.modelB
+create_model = models.create_model
+modelA = create_model('A')
+modelB = create_model('B')
+modelAB = modelA, modelB
 run_uncertainty = models.run_uncertainty
 
 def run_uncertainties(N=100, seed=None, rule='L',

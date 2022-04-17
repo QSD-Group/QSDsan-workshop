@@ -170,7 +170,10 @@ class MCDA:
         winner_df = pd.concat([pre_df, winner_df], axis=1).reset_index(drop=True)
 
         if file_path is not None:
-            file_path = file_path or os.path.join(dir_path, 'performance_scores.xlsx')
+            if not file_path:
+                results_path = os.path.join(dir_path, 'results')
+                if not os.path.isdir(results_path): os.mkdir(results_path)
+                file_path = os.path.join(results_path, 'performance_scores.xlsx')
             with pd.ExcelWriter(file_path) as writer:
                 winner_df.to_excel(writer, sheet_name='Winner')
                 score_df.to_excel(writer, sheet_name='Score')
