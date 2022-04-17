@@ -75,7 +75,8 @@ class MCDA:
             self._performance_scores = self._ranks = self._winners = None
 
 
-    def run_MCDA(self, criterion_weights=None, file_path='', **kwargs):
+    def run_MCDA(self, criterion_weights=None, indicator_scores=None,
+                 file_path='', **kwargs):
         '''
         Calculate performance scores using the TOPSIS method,
         multiple criterion weights can be considered,
@@ -102,7 +103,8 @@ class MCDA:
         rev_ind_type = np.ones_like(ind_type) - ind_type
         ind_wt = self.indicator_weights
 
-        indicator_scores = self.indicator_scores
+        indicator_scores = indicator_scores if indicator_scores is not None \
+            else self.indicator_scores
         indicator_scores_a = indicator_scores.values # a for array
         num_ind = indicator_scores.shape[1]
         num_alt = indicator_scores.shape[0]

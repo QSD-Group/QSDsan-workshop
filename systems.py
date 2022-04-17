@@ -450,14 +450,14 @@ score_df = pd.DataFrame({
     'Econ': (0, 0),
     'Env': (0, 0),
     })
-def get_scores():
-    for num, sys in enumerate((sysA, sysB)):
+def get_indicator_scores(systems):
+    for num, sys in enumerate(systems):
         score_df.loc[num, 'Econ'] = get_daily_cap_cost(sys, print_msg=False)
         score_df.loc[num, 'Env'] = get_daily_cap_ghg(sys, print_msg=False)
     return score_df
 
 alt_names = (sysA.ID, sysB.ID)
-mcda = MCDA(alt_names=alt_names, indicator_scores=get_scores())
+mcda = MCDA(alt_names=alt_names, indicator_scores=get_indicator_scores((sysA, sysB)))
 
 criterion_weights = mcda.criterion_weights.copy()
 def update_criterion_weights(econ_weight):
@@ -465,9 +465,10 @@ def update_criterion_weights(econ_weight):
     criterion_weights.Env = 1 - econ_weight
     return criterion_weights
 
-def run_mcda(econ_weight=0.5, indicator_scores=None, print_msg=True):
-    mcda.indicator_scores = indicator_scores or mcda.indicator_scores
-    mcda.run_MCDA(criterion_weights=update_criterion_weights(econ_weight))
+def run_mcda(systems=(), econ_weight=0.5, print_msg=True):
+    indicator_scores = get_indicator_scores(systems) if systems else mcda.indicator_scores
+    mcda.run_MCDA(criterion_weights=update_criterion_weights(econ_weight),
+                  indicator_scores=indicator_scores)
     if print_msg:
         scoreA = mcda.performance_scores[alt_names[0]].item()
         scoreB = mcda.performance_scores[alt_names[1]].item()

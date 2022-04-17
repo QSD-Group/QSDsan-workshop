@@ -54,9 +54,9 @@ get_ghg = systems.get_daily_cap_ghg
 
 def add_LCA_metrics(system, metrics):
     unit = 'g CO2-e/cap/d'
-    cat = 'LCA results'
+    cat = 'LCA'
     metrics.extend([
-        Metric('Net', lambda: get_ghg(system, 'net', False), unit, cat),
+        Metric('Net emission', lambda: get_ghg(system, 'net', False), unit, cat),
         Metric('Construction', lambda: get_ghg(system, 'construction', False), unit, cat),
         Metric('Transportation', lambda: get_ghg(system, 'transportation', False), unit, cat),
         Metric('Direct', lambda: get_ghg(system, 'direct', False), unit, cat),
@@ -76,7 +76,7 @@ def add_metrics(system):
     unit = '¢/cap/yr'
     cat = 'TEA'
     metrics.extend([
-        Metric('Net', lambda: get_cost(system, 'net', False), unit, cat),
+        Metric('Net cost', lambda: get_cost(system, 'net', False), unit, cat),
         Metric('CAPEX', lambda: get_cost(system, 'CAPEX', False), unit, cat),
         Metric('OPEX', lambda: get_cost(system, 'OPEX', False), unit, cat),
         Metric('sales', lambda: get_cost(system, 'sales', False), unit, cat),
