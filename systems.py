@@ -345,25 +345,33 @@ def update_B3_B4_param():
 B4.specification = update_B3_B4_param
 
 ################## Reuse or Disposal ##################
-B5 = su.CropApplication('B5', ins=B3-0, outs=('liquid_fertilizer', 'reuse_loss'),
+B5 = su.CropApplication('B5', ins=B3-0, outs=('liquid_fertilizer', 'liquid_reuse_loss'),
                         loss_ratio=app_loss)
 B5.specification = lambda: adjust_NH3_loss(B5)
 
-B6 = su.Mixer('B6', ins=(B2-4,), outs=streamsB['CH4'])
-B6.line = 'fugitive CH4 mixer'
+B6 = su.CropApplication('B6', ins=B4-0, outs=('solid_fertilizer', 'solid_reuse_loss'),
+                        loss_ratio=app_loss)
+def adjust_B6_NH3_loss():
+    B6.loss_ratio.update(B5.loss_ratio)
+    adjust_NH3_loss(B6)
+B6.specification = adjust_B6_NH3_loss
 
-B7 = su.Mixer('B7', ins=(B2-5,), outs=streamsB['N2O'])
-B7.line = 'fugitive N2O mixer'
+B7 = su.Mixer('B7', ins=(B2-4,), outs=streamsB['CH4'])
+B7.line = 'fugitive CH4 mixer'
 
-B8 = su.ComponentSplitter('B8', ins=B4-0,
-                           outs=(streamsB['sol_N'], streamsB['sol_P'], streamsB['sol_K'],
-                                 'B_sol_non_fertilizers'),
-                           split_keys=(('NH3', 'NonNH3'), 'P', 'K'))
+B8 = su.Mixer('B8', ins=(B2-5,), outs=streamsB['N2O'])
+B8.line = 'fugitive N2O mixer'
 
 B9 = su.ComponentSplitter('B9', ins=B5-0,
                            outs=(streamsB['liq_N'], streamsB['liq_P'], streamsB['liq_K'],
                                  'B_liq_non_fertilizers'),
                            split_keys=(('NH3', 'NonNH3'), 'P', 'K'))
+
+B10 = su.ComponentSplitter('B10', ins=B6-0,
+                           outs=(streamsB['sol_N'], streamsB['sol_P'], streamsB['sol_K'],
+                                 'B_sol_non_fertilizers'),
+                           split_keys=(('NH3', 'NonNH3'), 'P', 'K'))
+
 
 ############### Simulation, TEA, and LCA ###############
 sysB = System('sysB', path=flowsheetB.unit)
@@ -376,12 +384,12 @@ lcaB = LCA(system=sysB, lifetime=get_lifetime(), lifetime_unit='yr', uptime_rati
            annualize_construction=True)
 
 def update_sysB_params():
-    B9._run()
-    B8.outs[0].price = B9.outs[0].price = price_dct['N']
-    B8.outs[1].price = B9.outs[1].price = price_dct['P']
-    B8.outs[2].price = B9.outs[2].price = price_dct['K']
+    B10._run()
+    B9.outs[0].price = B10.outs[0].price = price_dct['N']
+    B9.outs[1].price = B10.outs[1].price = price_dct['P']
+    B9.outs[2].price = B10.outs[2].price = price_dct['K']
     teaB.lifetime = lcaB.lifetime = get_lifetime()
-B9.specification = update_sysB_params
+B10.specification = update_sysB_params
 
 
 # %%
@@ -396,7 +404,7 @@ def get_recovery(system, nutrient='N', print_msg=True):
                          f'not "{nutrient}".')
     sum_up = lambda streams: sum(getattr(s, f'T{nutrient}')*s.F_vol for s in streams) # g/hr
     tot_in = sum_up(system.path[0].outs)
-    tot_out = sum_up(A7.ins) if system is sysA else sum_up((B8.ins[0], B9.ins[0]))
+    tot_out = sum_up(A7.ins) if system is sysA else sum_up((B9.ins[0], B10.ins[0]))
     recovery = tot_out / get_ppl() / tot_in
     if print_msg: print(f'{nutrient} recovery for {system.ID} is {recovery:.1%}.')
     return recovery

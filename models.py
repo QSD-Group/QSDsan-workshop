@@ -124,7 +124,7 @@ get_decay_k = systems.get_decay_k
 tau_deg = systems.tau_deg
 log_deg = systems.log_deg
 
-def add_shared_parameters(model, crop_application_unit):
+def add_shared_parameters(model, main_crop_application_unit):
     ########## Related to multiple units ##########
     sys = model.system
     param = model.parameter
@@ -271,7 +271,7 @@ def add_shared_parameters(model, crop_application_unit):
           baseline=b, distribution=D)
 
     ########## Crop application ##########
-    unit = crop_application_unit
+    unit = main_crop_application_unit
     D = shape.Uniform(lower=0, upper=0.1)
     param(setter=DictAttrSetter(unit, 'loss_ratio', 'NH3'),
           name='NH3 application loss', element=unit, kind='coupled',
