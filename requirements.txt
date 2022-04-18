@@ -1,3 +1,8 @@
 qsdsan>=1.1.3
 scikit-learn
 country_converter
+
+# For the interactive modules
+ipywidgets
+jupyterlab-widgets
+widgetsnbextension

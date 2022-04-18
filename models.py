@@ -11,7 +11,7 @@ Part of this module is based on the EXPOsan repository:
 https://github.com/QSD-Group/EXPOsan
 
 This module is under the University of Illinois/NCSA Open Source License.
-Please refer to https://github.com/QSD-Group/EXPOsan/blob/main/LICENSE.txt
+Please refer to https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
 for license details.
 
 Ref:
@@ -533,11 +533,11 @@ country_params = {
     'Caloric intake': 'Excretion e cal',
     'Vegetable protein intake': 'Excretion p veg',
     'Animal protein intake': 'Excretion p anim',
-    'Food waste ratio': 'Food waste ratio', # not in the original model
-    'Price level ratio': 'Price level ratio', # not in the original model
     'N fertilizer price': 'N fertilizer price',
     'P fertilizer price': 'P fertilizer price',
     'K fertilizer price': 'K fertilizer price',
+    'Food waste ratio': 'Food waste ratio', # not in the original model
+    'Price level ratio': 'Price level ratio', # not in the original model
     'Income tax': 'Income tax', # not in the original model
     }
 def create_model(model_ID='A', country_specific=False, **model_kwargs):
@@ -560,7 +560,7 @@ def create_model(model_ID='A', country_specific=False, **model_kwargs):
 
         b = systems.price_ratio
         D = shape.Uniform(lower=b*0.9, upper=b*1.1)
-        @param(name='Price level ratio', element='TEA', kind='cost', units='fraction',
+        @param(name='Price level ratio', element='TEA', kind='cost', units='',
                baseline=b, distribution=D)
         def set_price_ratio(i):
             systems.price_ratio = i

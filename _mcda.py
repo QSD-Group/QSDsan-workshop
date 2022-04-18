@@ -11,7 +11,7 @@ Part of this module is based on the DMsan repository:
 https://github.com/QSD-Group/DMsan
 
 This module is under the University of Illinois/NCSA Open Source License.
-Please refer to https://github.com/QSD-Group/QSDsan/blob/master/LICENSE.txt
+Please refer to https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
 for license details.
 '''
 

@@ -8,7 +8,7 @@ This module is developed by:
     Yalin Li <zoe.yalin.li@gmail.com>
 
 This module is under the University of Illinois/NCSA Open Source License.
-Please refer to https://github.com/QSD-Group/EXPOsan/blob/main/LICENSE.txt
+Please refer to https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
 for license details.
 '''
 
@@ -55,15 +55,15 @@ def get_country_val(sheet, country, index_col='Code', val_col='Value'):
     return val.values.item()
 
 # Country-specific input values
-country_val_dcts = {} # for cached results
+val_dct_cached = {} # for cached results
 def lookup_val(country):
-    val_dct = country_val_dcts.get(country)
-    if val_dct: return val_dct
+    val_dct = val_dct_cached.get(country)
+    if val_dct is not None: return val_dct
 
     country = coco.convert(country)
     if country == 'not found': return
 
-    val_dct = country_val_dcts[country] = {
+    val_dct = val_dct_cached[country] = {
         'Caloric intake': get_country_val('Caloric Intake', country),
         'Vegetable protein intake': get_country_val('Vegetal Protein', country),
         'Animal protein intake': get_country_val('Animal Protein', country),
@@ -79,8 +79,14 @@ def lookup_val(country):
 # Update the baseline values of the models based on the country
 paramA_dct = {param.name: param for param in modelA.parameters}
 paramB_dct = {param.name: param for param in modelB.parameters}
+val_dct_cached = {}
 def get_results(country):
-    val_dct = lookup_val(country)
+    if isinstance(country, str):
+        val_dct = val_dct_cached.get(country)
+        if val_dct is None: val_dct = val_dct_cached[country] = lookup_val(country)
+    else:
+        val_dct = country
+
     global result_dct
     result_dct = {}
     for model in modelAB:
@@ -101,16 +107,18 @@ result_dct_uganda = get_results('Uganda')
 # Prettify things for displaying
 # =============================================================================
 
-country_val_dfs = {} # for cached results
+val_df_cached = {} # for cached results
 def get_val_df(country):
-    val_df = country_val_dfs.get(country)
-    if val_df is not None: return val_df
+    if isinstance(country, str): # search for cache first
+        val_df = val_df_cached.get(country)
+        if val_df is not None: return val_df
 
-    val_dct = lookup_val(country)
-    if not val_dct:
-        return '', f'No available information for country {country}'
+        val_dct = lookup_val(country)
+        if not val_dct:
+            # return '', f'No available information for country {country}'
+            return f'No available information for country {country}'
 
-    val_df = country_val_dfs[country] = pd.DataFrame({
+    val_df = val_df_cached[country] = pd.DataFrame({
         'Parameter': val_dct.keys(),
         'Value': val_dct.values(),
         'Unit': [p.units for p in paramA_dct.values() # A or B are the same
@@ -132,7 +140,7 @@ def extract_vals(df):
     vals.append(df.LCA.loc[metric_names[-1]])
     return vals
 
-
+#%%
 def plot(data, econ_weight=0.5):
     if isinstance(data, str): # assume to be the country name
         result_dct = get_results(data)
