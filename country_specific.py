@@ -140,7 +140,7 @@ def extract_vals(df):
     vals.append(df.LCA.loc[metric_names[-1]])
     return vals
 
-#%%
+
 def plot(data, econ_weight=0.5):
     if isinstance(data, str): # assume to be the country name
         result_dct = get_results(data)

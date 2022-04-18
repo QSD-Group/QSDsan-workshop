@@ -47,9 +47,11 @@ household_per_toilet = 4
 get_toilet_user = lambda: household_size * household_per_toilet
 
 # Number of people served by the existing plant (sysA and sysC)
-ppl_exist_sewer = 4e4
-ppl_exist_sludge = 416667
-get_ppl = lambda: ppl_exist_sewer+ppl_exist_sludge
+# ppl_exist_sewer = 4e4
+# ppl_exist_sludge = 416667
+# get_ppl = lambda: ppl_exist_sewer+ppl_exist_sludge
+ppl = 20000
+get_ppl = lambda: ppl
 
 exchange_rate = 3700 # UGX per USD
 get_exchange_rate = lambda: exchange_rate
