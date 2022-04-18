@@ -31,7 +31,7 @@ from biosteam.evaluation import Model, Metric
 from qsdsan import ImpactItem
 from qsdsan.utils import (
     ospath, load_data, data_path, dct_from_str,
-    AttrSetter, DictAttrSetter,
+    AttrSetter, DictAttrSetter, copy_samples
     )
 
 dir_path = os.path.dirname(__file__)
@@ -617,3 +617,30 @@ def run_uncertainty(model, N=1000, seed=None,rule='L',
             spearman_df.to_excel(writer, sheet_name='Spearman')
             model.table.to_excel(writer, sheet_name='Raw data')
     return model
+
+
+def run_uncertainties(models=(), N=100, seed=None, rule='L',
+                      percentiles=(0, 0.05, 0.25, 0.5, 0.75, 0.95, 1),):
+    if not models:
+        modelA = create_model('A')
+        modelB = create_model('B')
+        models = modelA, modelB
+
+    for model in models:
+        run_uncertainty(model, N, seed, rule, percentiles,
+                        only_load_samples=True, only_organize_results=False)
+    copy_samples(modelA, modelB)
+
+    for model in models:
+        run_uncertainty(model, N, seed, rule, percentiles,
+                        only_load_samples=False, only_organize_results=False)
+
+    return modelA, modelB
+
+
+def get_param_metric(name, model, kind='parameter'):
+    kind = 'parameters' if kind.lower() in ('p', 'param', 'parameter', 'parameters') \
+        else 'metrics'
+    for obj in getattr(model, kind):
+        if obj.name == name: break
+    return obj

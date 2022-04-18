@@ -437,7 +437,7 @@ def get_daily_cap_ghg(system, kind='net', print_msg=True):
         ghg = lca.total_impacts[ind_ID]
     elif kind in ('CAPEX', 'capital', 'construction'):
         ghg = lca.total_construction_impacts[ind_ID]
-    elif kind == 'transportation':
+    elif kind in ('transportation', 'transporting'):
         ghg = lca.total_transportation_impacts[ind_ID]
     elif kind == 'direct':
         ghg = lca.get_stream_impacts(kind='direct_emission')[ind_ID]

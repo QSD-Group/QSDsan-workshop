@@ -104,7 +104,7 @@ result_dct_uganda = get_results('Uganda')
 country_val_dfs = {} # for cached results
 def get_val_df(country):
     val_df = country_val_dfs.get(country)
-    if val_df: return val_df
+    if val_df is not None: return val_df
 
     val_dct = lookup_val(country)
     if not val_dct:
