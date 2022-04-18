@@ -115,8 +115,8 @@ def get_val_df(country):
 
         val_dct = lookup_val(country)
         if not val_dct:
-            # return '', f'No available information for country {country}'
-            return f'No available information for country {country}'
+            # return '', f'No available information for country {country}.'
+            return f'No available information for country "{country}."'
 
     val_df = val_df_cached[country] = pd.DataFrame({
         'Parameter': val_dct.keys(),
