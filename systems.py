@@ -23,6 +23,7 @@ warnings.filterwarnings('ignore', message='Solid content')
 
 import numpy as np, pandas as pd, qsdsan as qs
 from sklearn.linear_model import LinearRegression as LR
+from matplotlib import pyplot as plt
 from qsdsan import (
     Flowsheet, main_flowsheet,
     WasteStream,
@@ -455,28 +456,69 @@ def get_daily_cap_ghg(system, kind='net', print_msg=True):
     if print_msg: print(f'Daily {kind} emission for {system.ID} is {ghg:.1f} g CO2-e/cap/d.')
     return ghg
 
+def plot_tea_lca(tea_metrics=('net',), lca_metrics=('net',)):
+    fig, axs = plt.subplots(1, 2, figsize=(8, 4.5))
+    ax1, ax2 = axs
+    ylabel_size = 12
+    xticklabel_size = 10
+
+    # Cost
+    bar_width = 0.3
+    x = np.array(range(len(tea_metrics)))
+
+    ax1.bar(x-bar_width,
+            [get_daily_cap_cost(sysA, m, False) for m in tea_metrics],
+            label='sysA', width=bar_width)
+    ax1.bar(x+bar_width,
+            [get_daily_cap_cost(sysB, m, False) for m in tea_metrics],
+            label='sysB', width=bar_width)
+    ax1.set_ylabel('Cost [¢/cap/yr]', fontsize=ylabel_size)
+    ax1.set_xticks(x, tea_metrics, fontsize=xticklabel_size)
+
+    # Emission
+    x = np.array(range(len(lca_metrics)))
+    ax2.bar(x-bar_width,
+            [get_daily_cap_ghg(sysA, m, False) for m in lca_metrics],
+            label='sysA', width=bar_width)
+    ax2.bar(x+bar_width,
+            [get_daily_cap_ghg(sysB, m, False) for m in lca_metrics],
+            label='sysB', width=bar_width)
+    ax2.set_ylabel('Emission [g CO2-e/cap/d]', fontsize=ylabel_size)
+    ax2.set_xticks(x, lca_metrics, fontsize=xticklabel_size)
+
+    for ax in axs: ax.legend()
+    fig.tight_layout()
+
+    return fig
+
 
 score_df = pd.DataFrame({
     'Econ': (0, 0),
     'Env': (0, 0),
     })
-def get_indicator_scores(systems):
+def get_indicator_scores(systems=(sysA, sysB), tea_metric='net', lca_metric='net'):
+    if not systems: systems = (sysA, sysB)
     for num, sys in enumerate(systems):
-        score_df.loc[num, 'Econ'] = get_daily_cap_cost(sys, print_msg=False)
-        score_df.loc[num, 'Env'] = get_daily_cap_ghg(sys, print_msg=False)
+        score_df.loc[num, 'Econ'] = get_daily_cap_cost(sys, tea_metric, print_msg=False)
+        score_df.loc[num, 'Env'] = get_daily_cap_ghg(sys, lca_metric, print_msg=False)
     return score_df
 
 alt_names = (sysA.ID, sysB.ID)
 mcda = MCDA(alt_names=alt_names, indicator_scores=get_indicator_scores((sysA, sysB)))
 
-criterion_weights = mcda.criterion_weights.copy()
+cr_wt = mcda.criterion_weights.copy()
 def update_criterion_weights(econ_weight):
-    criterion_weights.Econ = econ_weight
-    criterion_weights.Env = 1 - econ_weight
-    return criterion_weights
+    cr_wt.Econ = econ_weight
+    cr_wt.Env = env_weight = 1 - econ_weight
+    if econ_weight == 0: cr_wt.Ratio = '0:1'
+    elif econ_weight == 1: cr_wt.Ratio = '1:0'
+    else: cr_wt.Ratio = f'{round(econ_weight,2)}:{round(env_weight,2)}'
+    return cr_wt
 
-def run_mcda(systems=(), econ_weight=0.5, print_msg=True):
-    indicator_scores = get_indicator_scores(systems) if systems else mcda.indicator_scores
+def run_mcda(systems=(sysA, sysB), tea_metric='net', lca_metric='net',
+             econ_weight=0.5, print_msg=True):
+    indicator_scores = get_indicator_scores(systems, tea_metric, lca_metric) \
+        if systems else mcda.indicator_scores
     mcda.run_MCDA(criterion_weights=update_criterion_weights(econ_weight),
                   indicator_scores=indicator_scores)
     if print_msg:
@@ -487,6 +529,19 @@ def run_mcda(systems=(), econ_weight=0.5, print_msg=True):
               f'{winner} is selected.')
     return mcda.performance_scores
 
+
+def plot_mcda(systems=(sysA, sysB), tea_metric='net', lca_metric='net',
+             econ_weights=np.arange(0, 1.1, 0.1)):
+    dfs = [run_mcda(systems, tea_metric, lca_metric, wt, False) for wt in econ_weights]
+    scoresA = [df.sysA.item() for df in dfs]
+    scoresB = [df.sysB.item() for df in dfs]
+    fig, ax = plt.subplots()
+    ax.plot(econ_weights, scoresA, '-', label='sysA')
+    ax.plot(econ_weights, scoresB, '--', label='sysB')
+    ax.set_xlabel('Economic Weight', fontsize=12)
+    ax.set_ylabel('Performance Score', fontsize=12)
+    ax.legend()
+    return fig
 
 if __name__ == '__main__':
     for sys in (sysA, sysB):

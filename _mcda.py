@@ -25,7 +25,6 @@ from qsdsan.utils import time_printer
 __all__ = ('MCDA',)
 
 supported_criteria = ('Econ', 'Env')
-# supported_criteria = ('Econ', 'Env', 'RR)
 single_cr_df = pd.DataFrame(
     data=np.diag([1]*len(supported_criteria)),
     columns=supported_criteria, dtype='float')
