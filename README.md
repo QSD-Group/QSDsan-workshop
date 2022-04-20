@@ -13,7 +13,7 @@ Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th En
 - Meeting ID: 842 5314 3016
 - Password: 890412
 
-**Materials include:**
+**This repo includes:**
 - QSDsan Workshop.pptx (workshop presentation slides)
 - Jupyte Notebook examples
     - Example_complete.ipynb (fully populated with additional notes)
