@@ -10,13 +10,13 @@ Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th En
 - QSDsan Workshop.pptx (workshop presentation slides)
 - Jupyte Notebook examples
     - Example_complete.ipynb (fully populated with additional notes)
-    - Example_interactive.ipynb (interactive module that does not require any coding)
+    - Example_interactive.ipynb (interactive module that does not require any coding skills)
 - Python modules to construct the systems and analyses, including
     - _cmps.py (components used in the systems)
     - _mcda.py (multi-criteria decision-analysis)
     - country_specific.py (country-specific analysis)
     - models.py (uncertainty and sensitivity analyses)
     - systems.py (systems)
-- data folder with data (e.g., location-specific parameters) used in the analysis
+- data folder with data used in the analysis (e.g., location-specific parameters)
 - results folder with results generated from the analysis
 - repository organizing and configuration files (``files`` folder, README.md, runtime.txt, etc.) 

@@ -79,7 +79,6 @@ def lookup_val(country):
 # Update the baseline values of the models based on the country
 paramA_dct = {param.name: param for param in modelA.parameters}
 paramB_dct = {param.name: param for param in modelB.parameters}
-val_dct_cached = {}
 def get_results(country):
     if isinstance(country, str):
         val_dct = val_dct_cached.get(country)
@@ -108,16 +107,18 @@ result_dct_uganda = get_results('Uganda')
 # =============================================================================
 
 val_df_cached = {} # for cached results
-def get_val_df(country):
-    if isinstance(country, str): # search for cache first
-        val_df = val_df_cached.get(country)
+def get_val_df(data):
+    if isinstance(data, str):
+        country = data # assume country name is provided
+        val_df = val_df_cached.get(data)
         if val_df is not None: return val_df
 
-        val_dct = lookup_val(country)
+        val_dct = lookup_val(data)
         if not val_dct:
-            # return '', f'No available information for country {country}.'
-            return f'No available information for country "{country}."'
-
+            return f'No available information for country "{data}."'
+    else:
+        val_dct = data # assue that the `val_dct` is provided instead of country name
+        country = 'customized'
     val_df = val_df_cached[country] = pd.DataFrame({
         'Parameter': val_dct.keys(),
         'Value': val_dct.values(),

@@ -416,13 +416,14 @@ def get_recovery(system, nutrient='N', print_msg=True):
 def get_daily_cap_cost(system, kind='net', print_msg=True):
     tea = system.TEA
     ppl = get_ppl()
-    if kind == 'net':
+    kind_lower = kind.lower()
+    if kind_lower == 'net':
         cost = (tea.annualized_equipment_cost-tea.net_earnings)
-    elif kind in ('CAPEX', 'capital', 'construction'):
+    elif kind_lower in ('capex', 'capital', 'construction'):
         cost = tea.annualized_equipment_cost
-    elif kind in ('OPEX', 'operating', 'operation'):
+    elif kind_lower in ('opex', 'operating', 'operation'):
         cost = tea.AOC
-    elif kind in ('sales', 'revenue'):
+    elif kind_lower in ('sales', 'sale', 'revenue'):
         cost = tea.sales
     else:
         raise ValueError(f'Invalid `kind` input "{kind}", '
@@ -436,17 +437,18 @@ def get_daily_cap_ghg(system, kind='net', print_msg=True):
     lca = system.LCA
     ppl = get_ppl()
     ind_ID = 'GlobalWarming'
-    if kind == 'net':
+    kind_lower = kind.lower()
+    if kind_lower == 'net':
         ghg = lca.total_impacts[ind_ID]
-    elif kind in ('CAPEX', 'capital', 'construction'):
+    elif kind_lower in ('capex', 'capital', 'construction'):
         ghg = lca.total_construction_impacts[ind_ID]
-    elif kind in ('transportation', 'transporting'):
+    elif kind_lower in ('transportation', 'transporting'):
         ghg = lca.total_transportation_impacts[ind_ID]
-    elif kind == 'direct':
+    elif kind_lower == 'direct':
         ghg = lca.get_stream_impacts(kind='direct_emission')[ind_ID]
-    elif kind == 'offset':
+    elif kind_lower == 'offset':
         ghg = -lca.get_stream_impacts(kind='offset')[ind_ID] # make it positive for credits
-    elif kind in ('OPEX', 'operating', 'operation'):
+    elif kind_lower in ('opex', 'operating', 'operation'):
         ghg = lca.total_transportation_impacts[ind_ID] + lca.get_stream_impacts()[ind_ID]
     else:
         raise ValueError(f'Invalid `kind` input "{kind}", '
@@ -517,6 +519,8 @@ def update_criterion_weights(econ_weight):
 
 def run_mcda(systems=(sysA, sysB), tea_metric='net', lca_metric='net',
              econ_weight=0.5, print_msg=True):
+    mcda.indicator_type.Econ[0] = 0 if tea_metric.lower() not in ('sales', 'sale', 'revenue') else 1
+    mcda.indicator_type.Env[0] = 0 if lca_metric.lower() !='offset' else 1
     indicator_scores = get_indicator_scores(systems, tea_metric, lca_metric) \
         if systems else mcda.indicator_scores
     mcda.run_MCDA(criterion_weights=update_criterion_weights(econ_weight),
