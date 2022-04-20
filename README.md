@@ -19,4 +19,4 @@ Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th En
     - systems.py (systems)
 - data folder with data (e.g., location-specific parameters) used in the analysis
 - results folder with results generated from the analysis
-- repository organizing and configuration files (``files`` folder, README.md, runtime.txt, etc.)
+- repository organizing and configuration files (``files`` folder, README.md, runtime.txt, etc.) 
