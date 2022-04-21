@@ -6,6 +6,8 @@
 
 Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/).
 
+Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/3i20v9ymfbm9vl9q1f52dqv262l7hhep).
+
 **Zoom information for the workshop:**
 - Topic: QSDsan workshop
 - Time: Apr 22, 2022 10:30 AM Central Time (US and Canada)
@@ -14,7 +16,6 @@ Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th En
 - Password: 890412
 
 **This repo includes:**
-- QSDsan Workshop.pptx (workshop presentation slides)
 - Jupyte Notebook examples
     - Example_complete.ipynb (fully populated with additional notes)
     - Example_interactive.ipynb (interactive module that does not require any coding skills)
