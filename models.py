@@ -68,9 +68,9 @@ def add_metrics(system):
     metrics = []
     cat = 'recovery'
     metrics.extend([
-        Metric('N recovery', lambda: get_recovery(system, 'N', False), '', cat),
-        Metric('P recovery', lambda: get_recovery(system, 'P', False), '', cat),
-        Metric('K recovery', lambda: get_recovery(system, 'K', False), '', cat),
+        Metric('N recovery', lambda: get_recovery(system, 'N', False), 'fraction', cat),
+        Metric('P recovery', lambda: get_recovery(system, 'P', False), 'fraction', cat),
+        Metric('K recovery', lambda: get_recovery(system, 'K', False), 'fraction', cat),
         ])
 
     unit = '¢/cap/yr'

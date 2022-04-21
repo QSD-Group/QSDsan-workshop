@@ -1,10 +1,18 @@
 # QSDsan-workshop
 
-**Click the badge to run examples in your web browser**
----
+## Click the badge to run examples in your web browser
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-group/QSDsan-workshop/main)
 
-Workshop materials for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/).
+**Note:**
+
+If the binder page gets stuck and you keep seeing this image:
+![binder loading](/files/binder_loading.png)
+
+Try to go directly to the [binder homepage](https://mybinder.org), fill in ``qsd-group/qsdsan-workshop`` in the ``GitHub`` box, and ``main`` in the ``Git ref`` box, then click the yellow ``launch`` button, this seems to work better under certain conditions.
+![binder loading](/files/binder_loading.png)
+
+## What is this repo for?
+This repository contains materials for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/).
 
 Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/3i20v9ymfbm9vl9q1f52dqv262l7hhep).
 
@@ -15,8 +23,8 @@ Slides used for this workshop can be viewed and downloaded through [this link](h
 - Meeting ID: 842 5314 3016
 - Password: 890412
 
-**This repo includes:**
-- Jupyte Notebook examples
+**Materials includes:**
+- Jupyte Notebook examples (see above on how to run these notebooks interactively in your browser)
     - Example_complete.ipynb (fully populated with additional notes)
     - Example_interactive.ipynb (interactive module that does not require any coding skills)
 - Python modules to construct the systems and analyses, including:

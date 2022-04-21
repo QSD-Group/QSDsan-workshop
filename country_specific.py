@@ -129,9 +129,9 @@ def get_val_df(data):
 
 
 metric_names = [
-    'N recovery',
-    'P recovery',
-    'K recovery',
+    'N recovery [fraction]',
+    'P recovery [fraction]',
+    'K recovery [fraction]',
     'Net cost [¢/cap/yr]',
     'Net emission [g CO2-e/cap/d]',
     ]
