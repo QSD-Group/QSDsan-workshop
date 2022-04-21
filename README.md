@@ -19,7 +19,7 @@ Slides used for this workshop can be viewed and downloaded through [this link](h
 - Jupyte Notebook examples
     - Example_complete.ipynb (fully populated with additional notes)
     - Example_interactive.ipynb (interactive module that does not require any coding skills)
-- Python modules to construct the systems and analyses, including
+- Python modules to construct the systems and analyses, including:
     - _cmps.py (components used in the systems)
     - _mcda.py (multi-criteria decision-analysis)
     - country_specific.py (country-specific analysis)
