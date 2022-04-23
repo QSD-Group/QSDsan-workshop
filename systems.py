@@ -474,7 +474,7 @@ def plot_tea_lca(tea_metrics=('net',), lca_metrics=('net',)):
     ax1.bar(x+bar_width,
             [get_daily_cap_cost(sysB, m, False) for m in tea_metrics],
             label='sysB', width=bar_width)
-    ax1.set_ylabel('Cost [¢/cap/yr]', fontsize=ylabel_size)
+    ax1.set_ylabel('Cost [¢/cap/d]', fontsize=ylabel_size)
     ax1.set_xticks(x, tea_metrics, fontsize=xticklabel_size)
 
     # Emission

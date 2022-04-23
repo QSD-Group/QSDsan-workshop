@@ -3,7 +3,7 @@
 ## What is this repo for?
 This repository contains materials for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/).
 
-Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/3i20v9ymfbm9vl9q1f52dqv262l7hhep).
+Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
 
 **Zoom information for the workshop:**
 - Topic: QSDsan workshop
