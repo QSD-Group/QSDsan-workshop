@@ -5,13 +5,6 @@ This repository contains materials for the QSDsan workshop on April 22, 2022 dur
 
 Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
 
-**Zoom information for the workshop:**
-- Topic: QSDsan workshop
-- Time: Apr 22, 2022 10:30 AM Central Time (US and Canada)
-- Join Zoom Meeting: https://illinois.zoom.us/j/84253143016?pwd=dzhRaFlyWXh0Y1k1S3VOSmdOdHBSQT09
-- Meeting ID: 842 5314 3016
-- Password: 890412
-
 **Materials includes:**
 - Jupyte Notebook examples (see below on how to run these notebooks interactively in your browser)
     - Example_complete.ipynb (fully populated with additional notes)
