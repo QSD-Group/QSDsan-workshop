@@ -5,7 +5,7 @@
 EXPOsan: Exposition of sanitation and resource recovery systems
 
 This module is developed by:
-    Yalin Li <zoe.yalin.li@gmail.com>
+    Yalin Li <mailto.yalin.li@gmail.com>
 
 Part of this module is based on the EXPOsan repository:
 https://github.com/QSD-Group/EXPOsan
