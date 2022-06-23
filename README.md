@@ -1,17 +1,13 @@
 # QSDsan-workshop
 
 ## What is this repo for?
-This repository contains materials for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/). You can find the recording of this workshop at [our YouTube channel](https://youtu.be/C4Wk2bhsvnk).
-
-Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
+This repository contains materials initially developed for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/) and updated for later workshops. You can find the recording of the EES Symposium workshop at [our YouTube channel](https://youtu.be/C4Wk2bhsvnk). Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
 
 **Materials includes:**
 - Jupyte Notebook examples (see below on how to run these notebooks interactively in your browser)
     - Example_complete.ipynb (fully populated with additional notes)
     - Example_interactive.ipynb (interactive module that does not require any coding skills)
 - Python modules to construct the systems and analyses, including:
-    - _cmps.py (components used in the systems)
-    - _mcda.py (multi-criteria decision-analysis)
     - country_specific.py (country-specific analysis)
     - models.py (uncertainty and sensitivity analyses)
     - systems.py (systems)

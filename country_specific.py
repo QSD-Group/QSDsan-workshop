@@ -14,7 +14,7 @@ for license details.
 
 import os, numpy as np, pandas as pd, country_converter as coco
 from matplotlib import pyplot as plt
-from systems import mcda, update_criterion_weights
+from systems import create_system, create_mcda#, update_criterion_weights
 from models import create_model, country_params
 
 modelA = create_model('A', country_specific=True)
@@ -191,7 +191,7 @@ def plot(data, econ_weight=0.5):
         ind_score_df.loc[num, 'Env'] = vals[-1]
 
     mcda.run_MCDA(
-        criterion_weights=update_criterion_weights(econ_weight),
+        criterion_weights=(econ_weight, 1-econ_weight),
         indicator_scores=ind_score_df)
     perfm_scores = mcda.performance_scores
 
@@ -204,3 +204,11 @@ def plot(data, econ_weight=0.5):
     fig.tight_layout()
 
     return fig
+
+
+if __name__ == '__main__':
+    global sysA, sysB
+    sysA = create_system('A')
+    sysB = create_system('B')
+    global mcda
+    mcda = create_mcda(systems=(sysA, sysB))

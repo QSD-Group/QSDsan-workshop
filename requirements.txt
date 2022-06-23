@@ -1,9 +1,8 @@
-fluids==1.0.21
-chemicals==1.0.20
-thermo==0.2.20
-thermosteam==0.28.7
-biosteam==2.32.4
-qsdsan>=1.1.3
+git+https://github.com/BioSTEAMDevelopmentGroup/thermosteam.git
+git+https://github.com/BioSTEAMDevelopmentGroup/biosteam.git@dyn_sim
+git+https://github.com/QSD-group/qsdsan
+git+https://github.com/QSD-group/exposan
+git+https://github.com/QSD-group/dmsan
 scikit-learn
 country_converter
 

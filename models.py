@@ -24,15 +24,15 @@ Ref:
 
 # %%
 
-import os, numpy as np, pandas as pd
+import os, numpy as np, pandas as pd, qsdsan as qs
 from chaospy import distributions as shape
 from thermosteam.functional import V_to_rho, rho_to_V
-from biosteam.evaluation import Model, Metric
-from qsdsan import ImpactItem
+from qsdsan import ImpactItem, Model, Metric
 from qsdsan.utils import (
     ospath, load_data, data_path, dct_from_str,
     AttrSetter, DictAttrSetter, copy_samples
     )
+from exposan import bwaise as bw
 
 dir_path = os.path.dirname(__file__)
 
@@ -43,14 +43,15 @@ dir_path = os.path.dirname(__file__)
 # Functions for batch-making metrics and -setting parameters
 # =============================================================================
 
-import systems
-sysA, sysB = systems.sysA, systems.sysB
-get_ppl = systems.get_ppl
-price_dct = systems.price_dct
-GWP_dct = systems.GWP_dct
-get_recovery = systems.get_recovery
-get_cost = systems.get_daily_cap_cost
-get_ghg = systems.get_daily_cap_ghg
+import systems as s
+from systems import (
+    create_system,
+    get_daily_cap_cost as get_cost,
+    get_daily_cap_ghg as get_ghg,
+    get_decay_k,
+    get_recovery,
+    )
+
 
 def add_LCA_metrics(system, metrics):
     unit = 'g CO2-e/cap/d'
@@ -119,25 +120,22 @@ def batch_setting_unit_params(df, model, unit, exclude=()):
 # =============================================================================
 
 su_data_path = ospath.join(data_path, 'sanunit_data/')
-get_exchange_rate = systems.get_exchange_rate
-get_decay_k = systems.get_decay_k
-tau_deg = systems.tau_deg
-log_deg = systems.log_deg
 
 def add_shared_parameters(model, main_crop_application_unit):
     ########## Related to multiple units ##########
     sys = model.system
+    sys_stream = sys.flowsheet.stream
     param = model.parameter
     tea = sys.TEA
 
     # UGX-to-USD
     Excretion = sys.path[0]
-    b = get_exchange_rate()
+    b = bw.exchange_rate
     D = shape.Triangle(lower=3600, midpoint=b, upper=3900)
     @param(name='Exchange rate', element=Excretion, kind='cost', units='UGX/USD',
            baseline=b, distribution=D)
     def set_exchange_rate(i):
-        systems.exchange_rate = i
+        bw.exchange_rate = i
 
     ########## Related to human input ##########
     # Diet and excretion
@@ -147,20 +145,20 @@ def add_shared_parameters(model, main_crop_application_unit):
 
     # Household size
     Toilet = sys.path[1]
-    b = systems.household_size
+    b = bw.household_size
     D = shape.Trunc(shape.Normal(mu=b, sigma=1.8), lower=1)
     @param(name='Household size', element=Toilet, kind='coupled', units='cap/household',
            baseline=b, distribution=D)
     def set_household_size(i):
-        systems.household_size = i
+        bw.household_size = i
 
     # Toilet
-    b = systems.household_per_toilet
+    b = bw.household_per_toilet
     D = shape.Uniform(lower=3, upper=5)
     @param(name='Toilet density', element=Toilet, kind='coupled', units='household/toilet',
            baseline=b, distribution=D)
     def set_toilet_density(i):
-        systems.household_per_toilet = i
+        bw.household_per_toilet = i
 
     path = ospath.join(data_path, 'sanunit_data/_toilet.tsv')
     toilet_data = load_data(path)
@@ -168,7 +166,9 @@ def add_shared_parameters(model, main_crop_application_unit):
                               exclude=('desiccant_rho',)) # set separately
 
     toilet_type = type(Toilet).__name__
-    WoodAsh = systems.cmps.WoodAsh
+
+    cmps = qs.get_components()
+    WoodAsh = cmps.WoodAsh
     b = V_to_rho(WoodAsh.V(298.15), WoodAsh.MW)
     D = shape.Triangle(lower=663, midpoint=b, upper=977)
     @param(name=f'{toilet_type} desiccant density', element=Toilet, kind='coupled',
@@ -194,24 +194,24 @@ def add_shared_parameters(model, main_crop_application_unit):
     ##### Universal degradation parameters #####
     # Max methane emission
     unit = sys.path[1] # the first unit that involves degradation
-    b = systems.max_CH4_emission
+    b = s.max_CH4_emission
     D = shape.Triangle(lower=0.175, midpoint=b, upper=0.325)
     @param(name='Max CH4 emission', element=unit, kind='coupled', units='g CH4/g COD',
            baseline=b, distribution=D)
     def set_max_CH4_emission(i):
-        systems.max_CH4_emission = i
+        s.max_CH4_emission = i
         for unit in sys.units:
             if hasattr(unit, 'max_CH4_emission'):
                 setattr(unit, 'max_CH4_emission', i)
 
     # Time to full degradation
-    b = tau_deg
+    b = bw.tau_deg
     D = shape.Uniform(lower=1, upper=3)
     @param(name='Full degradation time', element=unit, kind='coupled', units='yr',
            baseline=b, distribution=D)
     def set_tau_deg(i):
-        systems.tau_deg = i
-        k = get_decay_k(i, systems.log_deg)
+        bw.tau_deg = i
+        k = get_decay_k(i, bw.log_deg)
         for unit in sys.units:
             if hasattr(unit, 'decay_k_COD'):
                 setattr(unit, 'decay_k_COD', k)
@@ -219,13 +219,13 @@ def add_shared_parameters(model, main_crop_application_unit):
                 setattr(unit, 'decay_k_N', k)
 
     # Reduction at full degradation
-    b = systems.log_deg
+    b = bw.log_deg
     D = shape.Uniform(lower=2, upper=4)
     @param(name='Log degradation', element=unit, kind='coupled', units='-',
            baseline=b, distribution=D)
     def set_log_deg(i):
-        systems.log_deg = i
-        k = get_decay_k(systems.tau_deg, i)
+        bw.log_deg = i
+        k = get_decay_k(bw.tau_deg, i)
         for unit in sys.units:
             if hasattr(unit, 'decay_k_COD'):
                 setattr(unit, 'decay_k_COD', k)
@@ -285,79 +285,87 @@ def add_shared_parameters(model, main_crop_application_unit):
 
     ######## General TEA settings ########
     # Discount factor for the excreta-derived fertilizers
-    get_price_factor = systems.get_price_factor
-    b = get_price_factor()
+    b = bw.price_factor
     D = shape.Uniform(lower=0.1, upper=0.4)
     @param(name='Price factor', element='TEA', kind='isolated', units='-',
            baseline=b, distribution=D)
     def set_price_factor(i):
-        systems.price_factor = i
+        bw.price_factor = i
 
     D = shape.Uniform(lower=1.164, upper=2.296)
     @param(name='N fertilizer price', element='TEA', kind='isolated', units='USD/kg N',
            baseline=1.507, distribution=D)
     def set_N_price(i):
-        price_dct['N'] = i * get_price_factor()
+        price = i * bw.price_factor
+        mixed_N = sys_stream.search('mixed_N')
+        if mixed_N: mixed_N.price = price
+        else: sys_stream.liq_N.price = sys_stream.sol_N.price = price
 
     D = shape.Uniform(lower=2.619, upper=6.692)
     @param(name='P fertilizer price', element='TEA', kind='isolated', units='USD/kg P',
            baseline=3.983, distribution=D)
     def set_P_price(i):
-        price_dct['P'] = i * get_price_factor()
+        price = i * bw.price_factor
+        mixed_P = sys_stream.search('mixed_P')
+        if mixed_P: mixed_P.price = price
+        else: sys_stream.liq_P.price = sys_stream.sol_P.price = price
 
     D = shape.Uniform(lower=1.214, upper=1.474)
     @param(name='K fertilizer price', element='TEA', kind='isolated', units='USD/kg K',
            baseline=1.333, distribution=D)
     def set_K_price(i):
-        price_dct['K'] = i * get_price_factor()
+        price = i * bw.price_factor
+        mixed_K = sys_stream.search('mixed_K')
+        if mixed_K: mixed_K.price = price
+        else: sys_stream.liq_K.price = sys_stream.sol_K.price = price
 
     # Money discount rate
-    b = systems.discount_rate
+    b = tea.discount_rate
     D = shape.Uniform(lower=0.03, upper=0.06)
     @param(name='Discount rate', element='TEA', kind='isolated', units='fraction',
            baseline=b, distribution=D)
     def set_discount_rate(i):
-        systems.discount_rate = tea.discount_rate = i
+        tea.discount_rate = i
 
     return model
 
 def add_LCA_CF_parameters(model):
     param = model.parameter
 
-    b = GWP_dct['CH4']
+    b = bw.GWP_dct['CH4']
     D = shape.Uniform(lower=28, upper=34)
     @param(name='CH4 CF', element='LCA', kind='isolated', units='kg CO2-eq/kg CH4',
            baseline=b, distribution=D)
     def set_CH4_CF(i):
-        GWP_dct['CH4'] = ImpactItem.get_item('CH4_item').CFs['GlobalWarming'] = i
+        ImpactItem.get_item('CH4_item').CFs['GlobalWarming'] = i
 
-    b = GWP_dct['N2O']
+    b = bw.GWP_dct['N2O']
     D = shape.Uniform(lower=265, upper=298)
     @param(name='N2O CF', element='LCA', kind='isolated', units='kg CO2-eq/kg N2O',
            baseline=b, distribution=D)
     def set_N2O_CF(i):
-        GWP_dct['N2O'] = ImpactItem.get_item('N2O_item').CFs['GlobalWarming'] = i
+        ImpactItem.get_item('N2O_item').CFs['GlobalWarming'] = i
 
-    b = -GWP_dct['N']
+    b = -bw.GWP_dct['N']
     D = shape.Triangle(lower=1.8, midpoint=b, upper=8.9)
     @param(name='N fertilizer CF', element='LCA', kind='isolated',
            units='kg CO2-eq/kg N', baseline=b, distribution=D)
     def set_N_fertilizer_CF(i):
-        GWP_dct['N'] = ImpactItem.get_item('N_item').CFs['GlobalWarming'] = -i
+        ImpactItem.get_item('N_item').CFs['GlobalWarming'] = -i
 
-    b = -GWP_dct['P']
+    b = -bw.GWP_dct['P']
     D = shape.Triangle(lower=4.3, midpoint=b, upper=5.4)
     @param(name='P fertilizer CF', element='LCA', kind='isolated',
            units='kg CO2-eq/kg P', baseline=b, distribution=D)
     def set_P_fertilizer_CF(i):
-        GWP_dct['P'] = ImpactItem.get_item('P_item').CFs['GlobalWarming'] = -i
+        ImpactItem.get_item('P_item').CFs['GlobalWarming'] = -i
 
-    b = -GWP_dct['K']
+    b = -bw.GWP_dct['K']
     D = shape.Triangle(lower=1.1, midpoint=b, upper=2)
     @param(name='K fertilizer CF', element='LCA', kind='isolated',
            units='kg CO2-eq/kg K', baseline=b, distribution=D)
     def set_K_fertilizer_CF(i):
-        GWP_dct['K'] = ImpactItem.get_item('K_item').CFs['GlobalWarming'] = -i
+        ImpactItem.get_item('K_item').CFs['GlobalWarming'] = -i
 
     data = load_data('data/impact_items.xlsx', sheet='GWP')
     for p in data.index:
@@ -440,12 +448,12 @@ def add_pit_latrine_parameters(model):
           name='Transportation distance', element=unit, kind='coupled', units='km',
           baseline=b, distribution=D)
 
-    b = systems.emptying_fee
+    b = bw.emptying_fee
     D = shape.Uniform(lower=0, upper=0.3)
     @param(name='Additional emptying fee', element=unit, kind='coupled', units='fraction of base cost',
            baseline=b, distribution=D)
     def set_emptying_fee(i):
-        systems.emptying_fee = i
+        bw.emptying_fee = i
 
     return model
 
@@ -457,8 +465,10 @@ def add_pit_latrine_parameters(model):
 # =============================================================================
 
 def create_modelA(**model_kwargs):
+    system = model_kwargs.pop('system', None)
+    sysA = create_system('A') if not system else system
     modelA = Model(sysA, add_metrics(sysA), **model_kwargs)
-    modelA = add_shared_parameters(modelA, systems.A4)
+    modelA = add_shared_parameters(modelA, modelA.system.flowsheet.unit.A4)
     modelA = add_LCA_CF_parameters(modelA)
     modelA = add_pit_latrine_parameters(modelA)
     return modelA
@@ -471,13 +481,16 @@ def create_modelA(**model_kwargs):
 # =============================================================================
 
 def create_modelB(**model_kwargs):
+    system = model_kwargs.pop('system', None)
+    sysB = create_system('B') if not system else system
     modelB = Model(sysB, add_metrics(sysB), **model_kwargs)
+    unitB = modelB.system.flowsheet.unit
     paramB = modelB.parameter
-    modelB = add_shared_parameters(modelB, systems.B5)
+    modelB = add_shared_parameters(modelB, unitB.B5)
     modelB = add_LCA_CF_parameters(modelB)
 
     # UDDT
-    B2 = systems.B2
+    B2 = unitB.B2
     path = ospath.join(su_data_path, '_uddt.tsv')
     uddt_data = load_data(path)
     batch_setting_unit_params(uddt_data, modelB, B2)
@@ -497,8 +510,8 @@ def create_modelB(**model_kwargs):
         B2.OPEX_over_CAPEX = i
 
     # Conveyance
-    B3 = systems.B3
-    B4 = systems.B4
+    B3 = unitB.B3
+    B4 = unitB.B4
     b = B3.loss_ratio
     D = shape.Uniform(lower=0.02, upper=0.05)
     @paramB(name='Transportation loss', element=B3, kind='coupled', units='fraction',
@@ -513,19 +526,19 @@ def create_modelB(**model_kwargs):
     def set_trans_distance(i):
         B3.single_truck.distance = B4.single_truck.distance = i
 
-    b = systems.handcart_fee
+    b = bw.handcart_fee
     D = shape.Uniform(lower=0.004, upper=0.015)
     @paramB(name='Handcart fee', element=B3, kind='cost', units='USD/cap/d',
            baseline=b, distribution=D)
     def set_handcart_fee(i):
-        systems.handcart_fee = i
+        bw.handcart_fee = i
 
-    b = systems.truck_fee
+    b = bw.truck_fee
     D = shape.Uniform(lower=17e3, upper=30e3)
     @paramB(name='Truck fee', element=B3, kind='cost', units='UGX/m3',
            baseline=b, distribution=D)
     def set_truck_fee(i):
-        systems.truck_fee = i
+        bw.truck_fee = i
 
     return modelB
 
@@ -558,12 +571,12 @@ def create_model(model_ID='A', country_specific=False, **model_kwargs):
         def set_food_waste_ratio(i):
             unit.waste_ratio = i
 
-        b = systems.price_ratio
+        b = s.price_ratio
         D = shape.Uniform(lower=b*0.9, upper=b*1.1)
         @param(name='Price level ratio', element='TEA', kind='cost', units='',
                baseline=b, distribution=D)
         def set_price_ratio(i):
-            systems.price_ratio = i
+            s.price_ratio = i
 
         tea = system.TEA
         b = tea.income_tax
@@ -644,3 +657,11 @@ def get_param_metric(name, model, kind='parameter'):
     for obj in getattr(model, kind):
         if obj.name == name: break
     return obj
+
+
+# %%
+
+if __name__ == '__main__':
+    global modelA, modelB
+    modelA = create_model('A')
+    modelB = create_model('B')
