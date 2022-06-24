@@ -1,8 +1,8 @@
 git+https://github.com/BioSTEAMDevelopmentGroup/thermosteam.git@qsdsan
 git+https://github.com/BioSTEAMDevelopmentGroup/biosteam.git@qsdsan
-git+https://github.com/QSD-group/qsdsan
-git+https://github.com/QSD-group/exposan
-git+https://github.com/QSD-group/dmsan
+git+https://github.com/QSD-group/qsdsan.git@main
+git+https://github.com/QSD-group/exposan.git@main
+git+https://github.com/QSD-group/dmsan.git@main
 scikit-learn
 country_converter
 
