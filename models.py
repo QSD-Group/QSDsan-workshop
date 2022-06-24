@@ -27,12 +27,14 @@ Ref:
 import os, numpy as np, pandas as pd, qsdsan as qs
 from chaospy import distributions as shape
 from thermosteam.functional import V_to_rho, rho_to_V
-from qsdsan import ImpactItem, Model, Metric
+from qsdsan import Model, Metric
 from qsdsan.utils import (
-    ospath, load_data, data_path, dct_from_str,
-    AttrSetter, DictAttrSetter, copy_samples
+    ospath, load_data, data_path,
+    DictAttrSetter, copy_samples
     )
 from exposan import bwaise as bw
+from exposan.utils import batch_setting_unit_params
+from exposan.bwaise.models import add_LCA_CF_parameters, add_pit_latrine_parameters
 
 dir_path = os.path.dirname(__file__)
 
@@ -86,31 +88,6 @@ def add_metrics(system):
     metrics = add_LCA_metrics(system, metrics)
 
     return metrics
-
-
-def batch_setting_unit_params(df, model, unit, exclude=()):
-    for para in df.index:
-        if para in exclude: continue
-        b = getattr(unit, para)
-        lower = float(df.loc[para]['low'])
-        upper = float(df.loc[para]['high'])
-        dist = df.loc[para]['distribution']
-        if dist == 'uniform':
-            D = shape.Uniform(lower=lower, upper=upper)
-        elif dist == 'triangular':
-            D = shape.Triangle(lower=lower, midpoint=b, upper=upper)
-        elif dist == 'constant': continue
-        else:
-            raise ValueError(f'Distribution {dist} not recognized for unit {unit}.')
-
-        su_type = type(unit).__name__
-        if su_type.lower() == 'lagoon':
-            su_type = f'{unit.design_type.capitalize()} lagoon'
-        name = f'{su_type} {para}'
-        model.parameter(setter=AttrSetter(unit, para),
-                        name=name, element=unit,
-                        kind='coupled', units=df.loc[para]['unit'],
-                        baseline=b, distribution=D)
 
 
 # %%
@@ -327,136 +304,6 @@ def add_shared_parameters(model, main_crop_application_unit):
     def set_discount_rate(i):
         tea.discount_rate = i
 
-    return model
-
-def add_LCA_CF_parameters(model):
-    param = model.parameter
-
-    b = bw.GWP_dct['CH4']
-    D = shape.Uniform(lower=28, upper=34)
-    @param(name='CH4 CF', element='LCA', kind='isolated', units='kg CO2-eq/kg CH4',
-           baseline=b, distribution=D)
-    def set_CH4_CF(i):
-        ImpactItem.get_item('CH4_item').CFs['GlobalWarming'] = i
-
-    b = bw.GWP_dct['N2O']
-    D = shape.Uniform(lower=265, upper=298)
-    @param(name='N2O CF', element='LCA', kind='isolated', units='kg CO2-eq/kg N2O',
-           baseline=b, distribution=D)
-    def set_N2O_CF(i):
-        ImpactItem.get_item('N2O_item').CFs['GlobalWarming'] = i
-
-    b = -bw.GWP_dct['N']
-    D = shape.Triangle(lower=1.8, midpoint=b, upper=8.9)
-    @param(name='N fertilizer CF', element='LCA', kind='isolated',
-           units='kg CO2-eq/kg N', baseline=b, distribution=D)
-    def set_N_fertilizer_CF(i):
-        ImpactItem.get_item('N_item').CFs['GlobalWarming'] = -i
-
-    b = -bw.GWP_dct['P']
-    D = shape.Triangle(lower=4.3, midpoint=b, upper=5.4)
-    @param(name='P fertilizer CF', element='LCA', kind='isolated',
-           units='kg CO2-eq/kg P', baseline=b, distribution=D)
-    def set_P_fertilizer_CF(i):
-        ImpactItem.get_item('P_item').CFs['GlobalWarming'] = -i
-
-    b = -bw.GWP_dct['K']
-    D = shape.Triangle(lower=1.1, midpoint=b, upper=2)
-    @param(name='K fertilizer CF', element='LCA', kind='isolated',
-           units='kg CO2-eq/kg K', baseline=b, distribution=D)
-    def set_K_fertilizer_CF(i):
-        ImpactItem.get_item('K_item').CFs['GlobalWarming'] = -i
-
-    data = load_data('data/impact_items.xlsx', sheet='GWP')
-    for p in data.index:
-        item = ImpactItem.get_item(p)
-        b = item.CFs['GlobalWarming']
-        lower = float(data.loc[p]['low'])
-        upper = float(data.loc[p]['high'])
-        dist = data.loc[p]['distribution']
-        if dist == 'uniform':
-            D = shape.Uniform(lower=lower, upper=upper)
-        elif dist == 'triangular':
-            D = shape.Triangle(lower=lower, midpoint=b, upper=upper)
-        elif dist == 'constant': continue
-        else:
-            raise ValueError(f'Distribution {dist} not recognized.')
-        model.parameter(name=p+'CF',
-                        setter=DictAttrSetter(item, 'CFs', 'GlobalWarming'),
-                        element='LCA', kind='isolated',
-                        units=f'kg CO2-eq/{item.functional_unit}',
-                        baseline=b, distribution=D)
-    return model
-
-
-path = ospath.join(su_data_path, '_pit_latrine.tsv')
-pit_latrine_data = load_data(path)
-
-MCF_lower_dct = dct_from_str(pit_latrine_data.loc['MCF_decay']['low'])
-MCF_upper_dct = dct_from_str(pit_latrine_data.loc['MCF_decay']['high'])
-N2O_EF_lower_dct = dct_from_str(pit_latrine_data.loc['N2O_EF_decay']['low'])
-N2O_EF_upper_dct = dct_from_str(pit_latrine_data.loc['N2O_EF_decay']['high'])
-
-def add_pit_latrine_parameters(model):
-    sys = model.system
-    unit = sys.path[1]
-    param = model.parameter
-    ######## Related to the toilet ########
-    batch_setting_unit_params(pit_latrine_data, model, unit,
-                              exclude=('MCF_decay', 'N2O_EF_decay'))
-
-    # MCF and N2O_EF decay parameters, specified based on the type of the pit latrine
-    b = unit.MCF_decay
-    kind = unit._return_MCF_EF()
-    D = shape.Triangle(lower=MCF_lower_dct[kind], midpoint=b, upper=MCF_upper_dct[kind])
-    param(setter=DictAttrSetter(unit, '_MCF_decay', kind),
-          name='Pit latrine MCF decay', element=unit, kind='coupled',
-          units='fraction of anaerobic conversion of degraded COD',
-          baseline=b, distribution=D)
-
-    b = unit.N2O_EF_decay
-    D = shape.Triangle(lower=N2O_EF_lower_dct[kind], midpoint=b, upper=N2O_EF_upper_dct[kind])
-    param(setter=DictAttrSetter(unit, '_N2O_EF_decay', kind),
-          name='Pit latrine N2O EF decay', element=unit, kind='coupled',
-          units='fraction of N emitted as N2O',
-          baseline=b, distribution=D)
-
-    # Costs
-    b = unit.CAPEX
-    D = shape.Uniform(lower=386, upper=511)
-    param(setter=AttrSetter(unit, 'CAPEX'),
-          name='Pit latrine capital cost', element=unit, kind='cost',
-          units='USD/toilet', baseline=b, distribution=D)
-
-    b = unit.OPEX_over_CAPEX
-    D = shape.Uniform(lower=0.02, upper=0.08)
-    param(setter=AttrSetter(unit, 'OPEX_over_CAPEX'),
-          name='Pit latrine annual operating cost', element=unit, kind='cost',
-          units='fraction of capital cost', baseline=b, distribution=D)
-
-    ######## Related to conveyance ########
-    unit = sys.path[2]
-    b = unit.loss_ratio
-    D = shape.Uniform(lower=0.02, upper=0.05)
-    param(setter=AttrSetter(unit, 'loss_ratio'),
-          name='Transportation loss', element=unit, kind='coupled', units='fraction',
-          baseline=b, distribution=D)
-
-    b = unit.single_truck.distance
-    D = shape.Uniform(lower=2, upper=10)
-    param(setter=AttrSetter(unit.single_truck, 'distance'),
-          name='Transportation distance', element=unit, kind='coupled', units='km',
-          baseline=b, distribution=D)
-
-    b = bw.emptying_fee
-    D = shape.Uniform(lower=0, upper=0.3)
-    @param(name='Additional emptying fee', element=unit, kind='coupled', units='fraction of base cost',
-           baseline=b, distribution=D)
-    def set_emptying_fee(i):
-        bw.emptying_fee = i
-
-    return model
-
 
 # %%
 
@@ -468,9 +315,9 @@ def create_modelA(**model_kwargs):
     system = model_kwargs.pop('system', None)
     sysA = create_system('A') if not system else system
     modelA = Model(sysA, add_metrics(sysA), **model_kwargs)
-    modelA = add_shared_parameters(modelA, modelA.system.flowsheet.unit.A4)
-    modelA = add_LCA_CF_parameters(modelA)
-    modelA = add_pit_latrine_parameters(modelA)
+    add_shared_parameters(modelA, modelA.system.flowsheet.unit.A4)
+    add_LCA_CF_parameters(modelA, lca_kind='original')
+    add_pit_latrine_parameters(modelA)
     return modelA
 
 
@@ -486,8 +333,8 @@ def create_modelB(**model_kwargs):
     modelB = Model(sysB, add_metrics(sysB), **model_kwargs)
     unitB = modelB.system.flowsheet.unit
     paramB = modelB.parameter
-    modelB = add_shared_parameters(modelB, unitB.B5)
-    modelB = add_LCA_CF_parameters(modelB)
+    add_shared_parameters(modelB, unitB.B5)
+    add_LCA_CF_parameters(modelB, lca_kind='original')
 
     # UDDT
     B2 = unitB.B2
