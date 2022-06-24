@@ -14,12 +14,8 @@ for license details.
 
 import os, numpy as np, pandas as pd, country_converter as coco
 from matplotlib import pyplot as plt
-from systems import create_system, create_mcda#, update_criterion_weights
-from models import create_model, country_params
-
-modelA = create_model('A', country_specific=True)
-modelB = create_model('B', country_specific=True)
-modelAB = modelA, modelB
+from systems import create_mcda
+from models import create_model, country_params, country_params_units
 
 
 # %%
@@ -76,10 +72,17 @@ def lookup_val(country):
         }
     return val_dct
 
-# Update the baseline values of the models based on the country
-paramA_dct = {param.name: param for param in modelA.parameters}
-paramB_dct = {param.name: param for param in modelB.parameters}
-def get_results(country):
+def get_results(country, models=()):
+    if not models:
+        modelA = create_model('A', country_specific=True)
+        modelB = create_model('B', country_specific=True)
+        models = modelA, modelB
+    else: modelA, modelB = models
+
+    # Update the baseline values of the models based on the country
+    paramA_dct = {param.name: param for param in modelA.parameters}
+    paramB_dct = {param.name: param for param in modelB.parameters}
+
     if isinstance(country, str):
         val_dct = val_dct_cached.get(country)
         if val_dct is None: val_dct = val_dct_cached[country] = lookup_val(country)
@@ -88,7 +91,7 @@ def get_results(country):
 
     global result_dct
     result_dct = {}
-    for model in modelAB:
+    for model in models:
         param_dct = paramA_dct if model.system.ID[-1]=='A' else paramB_dct
         for reg_name, param_name in country_params.items():
             param = param_dct[param_name]
@@ -117,13 +120,13 @@ def get_val_df(data):
         if not val_dct:
             return f'No available information for country "{data}."'
     else:
-        val_dct = data # assue that the `val_dct` is provided instead of country name
+        val_dct = data # assume that the `val_dct` is provided instead of country name
         country = 'customized'
+
     val_df = val_df_cached[country] = pd.DataFrame({
         'Parameter': val_dct.keys(),
         'Value': val_dct.values(),
-        'Unit': [p.units for p in paramA_dct.values() # A or B are the same
-                 if p.name in country_params.values()]
+        'Unit': country_params_units.values(),
         })
     return val_df
 
@@ -142,7 +145,7 @@ def extract_vals(df):
     return vals
 
 
-def plot(data, econ_weight=0.5):
+def plot(data, mcda=None, econ_weight=0.5):
     if isinstance(data, str): # assume to be the country name
         result_dct = get_results(data)
     elif isinstance(data, dict): # assume to be compiled results dict
@@ -185,6 +188,7 @@ def plot(data, econ_weight=0.5):
     ax3.set_xticks(x, ['Emission'], fontsize=xticklabel_size)
 
     # Score
+    mcda = mcda or create_mcda()
     ind_score_df = mcda.indicator_scores.copy()
     for num, vals in enumerate((valsA, valsB)):
         ind_score_df.loc[num, 'Econ'] = vals[-2]
@@ -202,13 +206,6 @@ def plot(data, econ_weight=0.5):
 
     for ax in axs: ax.legend()
     fig.tight_layout()
-
+    plt.close()
     return fig
 
-
-if __name__ == '__main__':
-    global sysA, sysB
-    sysA = create_system('A')
-    sysB = create_system('B')
-    global mcda
-    mcda = create_mcda(systems=(sysA, sysB))

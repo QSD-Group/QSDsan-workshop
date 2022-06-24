@@ -553,6 +553,18 @@ country_params = {
     'Price level ratio': 'Price level ratio', # not in the original model
     'Income tax': 'Income tax', # not in the original model
     }
+country_params_units = {
+    'Caloric intake': 'kcal/cap/d',
+    'Vegetable protein intake': 'g/cap/d',
+    'Animal protein intake': 'g/cap/d',
+    'N fertilizer price': 'USD/kg N',
+    'P fertilizer price': 'USD/kg P',
+    'K fertilizer price': 'USD/kg K',
+    'Food waste ratio': 'fraction',
+    'Price level ratio': '',
+    'Income tax': 'fraction',
+    }
+
 def create_model(model_ID='A', country_specific=False, **model_kwargs):
     model_ID = model_ID.lstrip('model').lstrip('sys') # so that it'll work for "modelA"/"sysA"/"A"
     if model_ID == 'A': model = create_modelA(**model_kwargs)

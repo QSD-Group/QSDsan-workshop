@@ -89,7 +89,7 @@ def create_systemA(flowsheet=None):
                        decay_k_N=get_decay_k(),
                        max_CH4_emission=max_CH4_emission,
                        price_ratio=price_ratio)
-    A2.specification = lambda: update_toilet_param(A2, 'exist')
+    A2.specification = lambda: update_toilet_param(A2, ppl)
 
     ##### Conveyance #####
     A3 = su.Trucking('A3', ins=A2-0, outs=('transported', 'conveyance_loss'),
@@ -173,7 +173,7 @@ def create_systemB(flowsheet=None):
                  decay_k_N=get_decay_k(),
                  max_CH4_emission=max_CH4_emission,
                  price_ratio=price_ratio)
-    B2.specification = lambda: update_toilet_param(B2, 'exist')
+    B2.specification = lambda: update_toilet_param(B2, ppl)
 
     ##### Conveyance #####
     # Liquid waste
@@ -355,7 +355,8 @@ def get_daily_cap_ghg(system, kind='net', print_msg=True):
     if print_msg: print(f'Daily {kind} emission for {system.ID} is {ghg:.1f} g CO2-e/cap/d.')
     return ghg
 
-def plot_tea_lca(tea_metrics=('net',), lca_metrics=('net',)):
+def plot_tea_lca(systems, tea_metrics=('net',), lca_metrics=('net',)):
+    sysA, sysB = systems
     fig, axs = plt.subplots(1, 2, figsize=(8, 4.5))
     ax1, ax2 = axs
     ylabel_size = 12
@@ -387,7 +388,7 @@ def plot_tea_lca(tea_metrics=('net',), lca_metrics=('net',)):
 
     for ax in axs: ax.legend()
     fig.tight_layout()
-
+    plt.close()
     return fig
 
 
@@ -405,7 +406,8 @@ supported_criteria = ('Econ', 'Env')
 single_cr_df = pd.DataFrame({k: 1 for k in supported_criteria}, dtype='float', index=[0])
 single_cr_df['Ratio'] = [':'.join(single_cr_df.values.astype('int').astype('str')[i])
                          for i in range(len(single_cr_df))]
-def create_mcda(systems):
+def create_mcda(systems=()):
+    systems = systems or [create_system('A'), create_system('B')]
     alt_names = [sys.ID for sys in systems]
     indicator_type = pd.DataFrame({
             'Econ': 0,
@@ -424,8 +426,9 @@ def create_mcda(systems):
         )
     return mcda
 
-def run_mcda(mcda, tea_metric='net', lca_metric='net',
+def run_mcda(mcda=None, tea_metric='net', lca_metric='net',
              econ_weight=0.5, print_msg=True):
+    mcda = mcda or create_mcda()
     mcda.indicator_type.Econ[0] = 0 if tea_metric.lower() not in ('sales', 'sale', 'revenue') else 1
     mcda.indicator_type.Env[0] = 0 if lca_metric.lower() !='offset' else 1
     indicator_scores = get_indicator_scores(mcda.systems, tea_metric, lca_metric)
@@ -436,14 +439,16 @@ def run_mcda(mcda, tea_metric='net', lca_metric='net',
         scoreA = mcda.performance_scores[alt_names[0]].item()
         scoreB = mcda.performance_scores[alt_names[1]].item()
         winner = mcda.winners.Winner.item()
+        sysA, sysB = mcda.systems
         print(f'The score for {sysA.ID} is {scoreA:.3f}, for {sysB.ID} is {scoreB:.3f}, '
               f'{winner} is selected.')
     return mcda.performance_scores
 
 
-def plot_mcda(systems, tea_metric='net', lca_metric='net',
+def plot_mcda(mcda=None, tea_metric='net', lca_metric='net',
              econ_weights=np.arange(0, 1.1, 0.1)):
-    dfs = [run_mcda(systems, tea_metric, lca_metric, wt, False) for wt in econ_weights]
+    mcda = mcda or create_mcda()
+    dfs = [run_mcda(mcda, tea_metric, lca_metric, wt, False) for wt in econ_weights]
     scoresA = [df.sysA.item() for df in dfs]
     scoresB = [df.sysB.item() for df in dfs]
     fig, ax = plt.subplots()
@@ -452,7 +457,9 @@ def plot_mcda(systems, tea_metric='net', lca_metric='net',
     ax.set_xlabel('Economic Weight', fontsize=12)
     ax.set_ylabel('Performance Score', fontsize=12)
     ax.legend()
+    plt.close()
     return fig
+
 
 if __name__ == '__main__':
     global sysA, sysB
