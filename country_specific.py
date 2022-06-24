@@ -208,4 +208,3 @@ def plot(data, mcda=None, econ_weight=0.5):
     fig.tight_layout()
     plt.close()
     return fig
-
