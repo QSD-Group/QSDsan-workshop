@@ -3,8 +3,6 @@ git+https://github.com/BioSTEAMDevelopmentGroup/biosteam.git@qsdsan
 git+https://github.com/QSD-group/qsdsan.git@main
 git+https://github.com/QSD-group/exposan.git@main
 git+https://github.com/QSD-group/dmsan.git@main
-scikit-learn
-country_converter
 
 # For the interactive modules
 ipywidgets
