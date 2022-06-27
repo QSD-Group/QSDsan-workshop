@@ -189,6 +189,7 @@ def plot(data, mcda=None, econ_weight=0.5):
 
     # Score
     mcda = mcda or create_mcda()
+    mcda.indicator_type.Econ[0] = mcda.indicator_type.Env[0] = 0 # net cost/emission
     ind_score_df = mcda.indicator_scores.copy()
     for num, vals in enumerate((valsA, valsB)):
         ind_score_df.loc[num, 'Econ'] = vals[-2]
