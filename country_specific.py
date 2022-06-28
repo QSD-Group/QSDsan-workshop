@@ -111,7 +111,7 @@ result_dct_uganda = get_results('Uganda')
 
 val_df_cached = {} # for cached results
 def get_val_df(data):
-    if isinstance(data, str):
+    if isinstance(data, str) and data != 'customized':
         country = data # assume country name is provided
         val_df = val_df_cached.get(data)
         if val_df is not None: return val_df
