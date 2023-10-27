@@ -1,5 +1,8 @@
 # QSDsan-workshop
 
+## Note
+Contents in this repository has been moved to the [QSDedu](https://github.com/QSD-Group/QSDedu) repository.
+
 ## What is this repo for?
 This repository contains materials initially developed for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/) and updated for later workshops. You can find the recording of the [EES Symposium workshop](https://youtu.be/C4Wk2bhsvnk) and a [demo video](https://youtu.be/cO3LZpwOit8) at our YouTube channel. Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
 
