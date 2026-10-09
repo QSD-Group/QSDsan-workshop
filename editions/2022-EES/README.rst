@@ -2,7 +2,14 @@
 27th Environmental Engineering and Science Symposium
 ====================================================
 
-This repository contains materials initially developed for a QSDsan workshop on April 22, 2022 during the `27th Environmental Engineering and Science (EES) Symposium <https://publish.illinois.edu/2022-environmentalsymposium>`_ and updated for later workshops. You can find the `recording <https://youtu.be/C4Wk2bhsvnk>`_ of the EES Symposium workshop and a `demo video <https://youtu.be/cO3LZpwOit8>`_ at our YouTube channel. Slides used for this workshop can be viewed and downloaded through `this link <https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl>`_.
+This folder contains materials initially developed for a QSDsan workshop on April 22, 2022 during the `27th Environmental Engineering and Science (EES) Symposium <https://publish.illinois.edu/2022-environmentalsymposium>`_ and updated for later workshops. You can find the `recording <https://youtu.be/C4Wk2bhsvnk>`_ of the EES Symposium workshop and a `demo video <https://youtu.be/cO3LZpwOit8>`_ at our YouTube channel. Slides used for this workshop can be viewed and downloaded through `this link <https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl>`_.
+
+Launching Binder
+----------------
+Click the badge to run the notebooks in your browser (no installation needed). The link uses the ``2022-EES`` git tag, so it builds the environment exactly as it was when this workshop was taught.
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/QSD-Group/QSDsan-workshop/2022-EES?urlpath=lab/tree/editions/2022-EES
 
 Materials
 ---------

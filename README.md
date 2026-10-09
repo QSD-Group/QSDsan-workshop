@@ -1,6 +1,6 @@
 # QSDsan-workshop
 
-Materials for workshops on [QSDsan](https://github.com/QSD-Group/QSDsan), organized by edition. Each edition is a self-contained folder with what was used for that event (agenda, slides link, setup, exercises, pinned environment). Where possible, editions link to the [QSDsan tutorials](https://qsdsan.readthedocs.io/en/latest/tutorials/index.html) instead of copying notebooks.
+Materials for workshops on [QSDsan](https://github.com/QSD-Group/QSDsan), organized by edition. Each edition is a self-contained folder with what was used for that event (agenda, slides link, setup, exercises, pinned environment).
 
 ## Editions
 
@@ -9,9 +9,7 @@ Materials for workshops on [QSDsan](https://github.com/QSD-Group/QSDsan), organi
 | 2022 EES Symposium | 2022-04-22 | 27th Environmental Engineering and Science Symposium (in person) | TODO | [editions/2022-EES](editions/2022-EES) |
 
 ## Running an edition in your browser
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-Group/QSDsan-workshop/main?urlpath=lab/tree/editions/2022-EES)
-
-Binder reads its configuration from the repo root, so `requirements.txt` and `runtime.txt` there are pinned to the **latest** edition. To rebuild an earlier edition exactly as it was taught, use the git tag named after it (e.g., `2022-EES`) in place of `main`, both in the Binder link and when cloning.
+Each edition's README gives its launch links (e.g., Binder, Google Colab), so nothing needs to be installed. Launchers differ in where they read the environment from (Binder, for example, reads `requirements.txt` and `runtime.txt` from the repo root, which are pinned to the **latest** edition), but all of them should point to the git tag named after the edition (e.g., `2022-EES`), not `main`, so that an earlier edition is rebuilt exactly as it was taught.
 
 ## Adding a new edition
 1. Copy an existing folder in `editions/` to `editions/<year>-<venue>/`.
