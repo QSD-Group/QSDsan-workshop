@@ -1,0 +1,90 @@
+# Execute every edition's notebooks end-to-end to catch breakage.
+#
+# Runs --nbval-lax: every cell is executed and only UNEXPECTED exceptions fail
+# the run (deliberate teaching errors can be tagged `raises-exception`, which
+# nbval honors). Output is not compared, so plots and version strings do not
+# cause false failures.
+#
+# Two jobs:
+#   - pinned: the versions in requirements.txt (what attendees get). Must pass.
+#   - latest: unpinned qsdsan/exposan. Allowed to fail; a red result is an early
+#     warning that the next QSDsan release will break the workshop materials.
+#
+# Triggers: weekly (catches upstream drift with no commit here), on demand, and
+# on pushes/PRs that touch editions or the environment files.
+
+name: build-notebooks
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'editions/**'
+      - 'requirements.txt'
+      - 'runtime.txt'
+      - '.github/workflows/build-notebooks.yml'
+  pull_request:
+    paths:
+      - 'editions/**'
+      - 'requirements.txt'
+      - 'runtime.txt'
+      - '.github/workflows/build-notebooks.yml'
+
+jobs:
+  pinned:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+        cache: "pip"
+        cache-dependency-path: requirements.txt
+    - name: Install graphviz
+      # QSDsan's .diagram() shells out to graphviz `dot`.
+      run: sudo apt-get update && sudo apt-get install -y graphviz
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install nbval
+    - name: Run notebooks
+      env:
+        MPLBACKEND: Agg
+      run: |
+        # Each edition runs from its own folder: the notebooks import systems.py from there.
+        for d in editions/*/; do
+          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
+            -o addopts="" -p no:cacheprovider *.ipynb)
+        done
+
+  latest:
+    # Early-warning job, so a failure here does not fail the workflow.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install graphviz
+      run: sudo apt-get update && sudo apt-get install -y graphviz
+    - name: Install dependencies (latest, ignoring pins for qsdsan/exposan)
+      run: |
+        python -m pip install --upgrade pip
+        # Drop the qsdsan/exposan pins; keep the rest of requirements.txt as-is.
+        grep -vi '^\(qsdsan\|exposan\)==' requirements.txt > requirements-latest.txt
+        pip install -r requirements-latest.txt qsdsan exposan nbval
+    - name: Run notebooks
+      env:
+        MPLBACKEND: Agg
+      run: |
+        for d in editions/*/; do
+          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=1800 \
+            -o addopts="" -p no:cacheprovider *.ipynb)
+        done
