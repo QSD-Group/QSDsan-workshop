@@ -6,11 +6,18 @@ This folder contains materials initially developed for a QSDsan workshop on Apri
 
 Launching in your browser
 -------------------------
-Both options need no installation, and both use the ``2022-EES`` git tag, so they build the environment exactly as it was when this workshop was taught.
+All options need no installation, and all use the ``2022-EES`` git tag, so they run the notebooks in the environment as it was when this workshop was taught.
 
-Binder
-******
-Launches the whole folder in JupyterLab.
+Binder (fast start)
+*******************
+Launches the whole folder in JupyterLab using a prebuilt environment from `QSDsan-env <https://github.com/QSD-Group/QSDsan-env>`_ (the ``workshop-2022-EES`` tag), so it starts in a minute or two. The notebooks are pulled from this repository at the ``2022-EES`` tag.
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/QSD-Group/QSDsan-env/workshop-2022-EES?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252FQSD-Group%252FQSDsan-workshop%26urlpath%3Dlab%252Ftree%252FQSDsan-workshop%252Feditions%252F2022-EES%26branch%3D2022-EES
+
+Binder (build from this repository)
+***********************************
+Builds the environment from the ``requirements.txt`` and ``runtime.txt`` in this repository at the ``2022-EES`` tag. Use this if the fast start does not work; the first launch can take several minutes while Binder builds the environment.
 
 .. image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/QSD-Group/QSDsan-workshop/2022-EES?urlpath=lab/tree/editions/2022-EES
