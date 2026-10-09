@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 '''
-QSDedu: Education Modules for Quantitative Sustainable Design
+QSDsan-workshop: Materials for QSDsan workshops
 
 This module is developed by:
 
     Yalin Li <mailto.yalin.li@gmail.com>
 
 This module is under the University of Illinois/NCSA Open Source License.
-Please refer to https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
+Please refer to https://github.com/QSD-Group/QSDsan-workshop/blob/main/LICENSE.txt
 for license details.
 '''
 

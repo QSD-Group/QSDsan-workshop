@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-QSDedu: Education Modules for Quantitative Sustainable Design
+QSDsan-workshop: Materials for QSDsan workshops
 
 This module is developed by:
 
