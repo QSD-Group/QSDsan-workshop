@@ -85,6 +85,6 @@ jobs:
         MPLBACKEND: Agg
       run: |
         for d in editions/*/; do
-          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=1800 \
+          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
             -o addopts="" -p no:cacheprovider *.ipynb)
         done
