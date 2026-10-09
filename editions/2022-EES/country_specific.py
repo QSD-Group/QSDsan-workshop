@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-QSDsan: Quantitative Sustainable Design for sanitation and resource recovery systems
+QSDedu: Education Modules for Quantitative Sustainable Design
 
 This module is developed by:
+
     Yalin Li <mailto.yalin.li@gmail.com>
 
 This module is under the University of Illinois/NCSA Open Source License.
@@ -189,7 +190,7 @@ def plot(data, mcda=None, econ_weight=0.5):
 
     # Score
     mcda = mcda or create_mcda()
-    mcda.indicator_type.Econ[0] = mcda.indicator_type.Env[0] = 0 # net cost/emission
+    mcda.indicator_type.loc[0, ['Econ', 'Env']] = 0 # net cost/emission
     ind_score_df = mcda.indicator_scores.copy()
     for num, vals in enumerate((valsA, valsB)):
         ind_score_df.loc[num, 'Econ'] = vals[-2]

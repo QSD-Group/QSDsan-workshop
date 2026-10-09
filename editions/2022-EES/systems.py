@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-QSDsan: Quantitative Sustainable Design for sanitation and resource recovery systems
+QSDedu: Education Modules for Quantitative Sustainable Design
 
 This module is developed by:
-    Yalin Li <mailto.yalin.li@gmail.com>
 
-Part of this module is based on the EXPOsan repository:
-https://github.com/QSD-Group/EXPOsan
+    Yalin Li <mailto.yalin.li@gmail.com>
 
 This module is under the University of Illinois/NCSA Open Source License.
 Please refer to https://github.com/QSD-Group/QSDsan/blob/main/LICENSE.txt
@@ -89,7 +87,7 @@ def create_systemA(flowsheet=None):
                        decay_k_N=get_decay_k(),
                        max_CH4_emission=max_CH4_emission,
                        price_ratio=price_ratio)
-    A2.specification = lambda: update_toilet_param(A2, ppl)
+    A2.add_specification(lambda: update_toilet_param(A2, ppl))
 
     ##### Conveyance #####
     A3 = su.Trucking('A3', ins=A2-0, outs=('transported', 'conveyance_loss'),
@@ -106,12 +104,12 @@ def create_systemA(flowsheet=None):
         A3.fee = get_tanker_truck_fee(vol)
         A3.price_ratio = price_ratio
         A3._design()
-    A3.specification = update_A3_param
+    A3.add_specification(update_A3_param)
 
     ##### Reuse or Disposal #####
     A4 = su.CropApplication('A4', ins=A3-0, outs=('liquid_fertilizer', 'reuse_loss'),
                             loss_ratio=app_loss)
-    A4.specification = lambda: adjust_NH3_loss(A4)
+    A4.add_specification(lambda: adjust_NH3_loss(A4))
 
     A5 = su.Mixer('A5', ins=(A2-2,), outs=streamA.CH4)
     A5.line = 'fugitive CH4 mixer'
@@ -139,7 +137,7 @@ def create_systemA(flowsheet=None):
         A7.outs[1].price = price_dct['P']
         A7.outs[2].price = price_dct['K']
         teaA.lifetime = lcaA.lifetime = lifetime
-    A7.specification = update_sysA_lifetime
+    A7.add_specification(update_sysA_lifetime)
 
     return sysA
 
@@ -173,7 +171,7 @@ def create_systemB(flowsheet=None):
                  decay_k_N=get_decay_k(),
                  max_CH4_emission=max_CH4_emission,
                  price_ratio=price_ratio)
-    B2.specification = lambda: update_toilet_param(B2, ppl)
+    B2.add_specification(lambda: update_toilet_param(B2, ppl))
 
     ##### Conveyance #####
     # Liquid waste
@@ -201,19 +199,19 @@ def create_systemB(flowsheet=None):
         B3.price_ratio = B4.price_ratio = price_ratio
         B3._design()
         B4._design()
-    B4.specification = update_B3_B4_param
+    B4.add_specification(update_B3_B4_param)
 
     ##### Reuse or Disposal #####
     B5 = su.CropApplication('B5', ins=B3-0, outs=('liquid_fertilizer', 'liquid_reuse_loss'),
                             loss_ratio=app_loss)
-    B5.specification = lambda: adjust_NH3_loss(B5)
+    B5.add_specification(lambda: adjust_NH3_loss(B5))
 
     B6 = su.CropApplication('B6', ins=B4-0, outs=('solid_fertilizer', 'solid_reuse_loss'),
                             loss_ratio=app_loss)
     def adjust_B6_NH3_loss():
         B6.loss_ratio.update(B5.loss_ratio)
         adjust_NH3_loss(B6)
-    B6.specification = adjust_B6_NH3_loss
+    B6.add_specification(adjust_B6_NH3_loss)
 
     B7 = su.Mixer('B7', ins=(B2-4,), outs=streamB.CH4)
     B7.line = 'fugitive CH4 mixer'
@@ -248,7 +246,7 @@ def create_systemB(flowsheet=None):
         B9.outs[1].price = B10.outs[1].price = price_dct['P']
         B9.outs[2].price = B10.outs[2].price = price_dct['K']
         teaB.lifetime = lcaB.lifetime = lifetime
-    B10.specification = update_sysB_params
+    B10.add_specification(update_sysB_params)
 
     return sysB
 
@@ -275,6 +273,7 @@ def create_system(system_ID='A', flowsheet=None, lca_kind='original'):
             reload_lca = True
         flowsheet = qs.Flowsheet(flowsheet_ID)
         main_flowsheet.set_flowsheet(flowsheet)
+        reload_lca = True # LCA items are per-flowsheet; always reload
 
     loaded_status = _load_lca_data(lca_kind, reload_lca)
 
@@ -395,7 +394,7 @@ def plot_tea_lca(systems, tea_metrics=('net',), lca_metrics=('net',)):
 score_df = pd.DataFrame({
     'Econ': (0, 0),
     'Env': (0, 0),
-    })
+    }, dtype=float)
 def get_indicator_scores(systems, tea_metric='net', lca_metric='net'):
     for num, sys in enumerate(systems):
         score_df.loc[num, 'Econ'] = get_daily_cap_cost(sys, tea_metric, print_msg=False)
@@ -429,8 +428,8 @@ def create_mcda(systems=()):
 def run_mcda(mcda=None, tea_metric='net', lca_metric='net',
              econ_weight=0.5, print_msg=True):
     mcda = mcda or create_mcda()
-    mcda.indicator_type.Econ[0] = 0 if tea_metric.lower() not in ('sales', 'sale', 'revenue') else 1
-    mcda.indicator_type.Env[0] = 0 if lca_metric.lower() !='offset' else 1
+    mcda.indicator_type.loc[0, 'Econ'] = 0 if tea_metric.lower() not in ('sales', 'sale', 'revenue') else 1
+    mcda.indicator_type.loc[0, 'Env'] = 0 if lca_metric.lower() !='offset' else 1
     indicator_scores = get_indicator_scores(mcda.systems, tea_metric, lca_metric)
     mcda.run_MCDA(criterion_weights=(econ_weight, 1-econ_weight),
                   indicator_scores=indicator_scores)

@@ -1,33 +1,24 @@
 # QSDsan-workshop
 
-## Note
-Contents in this repository have been moved to the [QSDedu](https://github.com/QSD-Group/QSDedu) repository.
+Materials for workshops on [QSDsan](https://github.com/QSD-Group/QSDsan), organized by edition. Each edition is a self-contained folder with what was used for that event (agenda, slides link, setup, exercises, pinned environment). Where possible, editions link to the [QSDsan tutorials](https://qsdsan.readthedocs.io/en/latest/tutorials/index.html) instead of copying notebooks.
 
-## What is this repo for?
-This repository contains materials initially developed for the QSDsan workshop on April 22, 2022 during the [27th Environmental Engineering and Science Symposium](https://publish.illinois.edu/2022-environmentalsymposium/) and updated for later workshops. You can find the recording of the [EES Symposium workshop](https://youtu.be/C4Wk2bhsvnk) and a [demo video](https://youtu.be/cO3LZpwOit8) at our YouTube channel. Slides used for this workshop can be viewed and downloaded through [this link](https://uofi.box.com/s/ysjoo1dfmddrhkdp8xttmlggaa9k9ubl).
+## Editions
 
-**Materials includes:**
-- Jupyter Notebook examples (see below on how to run these notebooks interactively in your browser)
-    - Example_complete.ipynb (fully populated with additional notes)
-    - Example_interactive.ipynb (interactive module that does not require any coding skills)
-- Python modules to construct the systems and analyses, including:
-    - country_specific.py (country-specific analysis)
-    - models.py (uncertainty and sensitivity analyses)
-    - systems.py (systems)
-- data folder with data used in the analysis (e.g., location-specific parameters)
-- results folder with results generated from the analysis
-- repository organizing and configuration files (``files`` folder, README.md, runtime.txt, etc.)
+| Edition | Date | Venue / audience | Length | Folder |
+|---|---|---|---|---|
+| 2022 EES Symposium | 2022-04-22 | 27th Environmental Engineering and Science Symposium (in person) | TODO | [editions/2022-EES](editions/2022-EES) |
 
-## Launch binder to run the workshop examples in your browser
-Click on the badge: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-group/QSDsan-workshop/main)
+## Running an edition in your browser
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-Group/QSDsan-workshop/main?urlpath=lab/tree/editions/2022-EES)
 
-**Note:**
+Binder reads its configuration from the repo root, so `requirements.txt` and `runtime.txt` there are pinned to the **latest** edition. To rebuild an earlier edition exactly as it was taught, use the git tag named after it (e.g., `2022-EES`) in place of `main`, both in the Binder link and when cloning.
 
-If the binder page gets stuck and you keep seeing this image:
+## Adding a new edition
+1. Copy an existing folder in `editions/` to `editions/<year>-<venue>/`.
+2. Fill in its README (audience, length, learning goals, agenda, slides/recording links).
+3. Update the root `requirements.txt` and `runtime.txt` to the versions the new edition was tested against, and re-run its notebooks.
+4. Once delivered, tag the repo `<year>-<venue>` and treat the folder as frozen; fix only broken links.
 
-<img src='files/binder_loading.png' alt='binder loading' width='500'> 
-
-
-Try to go directly to the [binder homepage](https://mybinder.org), fill in ``qsd-group/qsdsan-workshop`` in the ``GitHub▼`` box, and ``main`` in the ``Git ref`` box, then click the yellow ``launch`` button, this seems to work better under certain conditions.
-
-<img src='files/binder_home.png' alt='binder home' width='500'>
+## Related
+- [QSDsan tutorials](https://qsdsan.readthedocs.io/en/latest/tutorials/index.html): source of truth for how QSDsan works
+- [QSDedu](https://github.com/QSD-Group/QSDedu): course modules for quantitative sustainable design
