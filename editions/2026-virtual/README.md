@@ -9,7 +9,7 @@ This folder is under construction. Sections are added as they are finished.
 1. Install QSDsan: follow [setup/INSTALL.md](setup/INSTALL.md).
 2. Run the environment check: [setup/check_environment.py](setup/check_environment.py). The last line should say READY.
 3. Check what you need to know: [prework/PREREQUISITES.md](prework/PREREQUISITES.md).
-4. Optional reading (35 to 55 minutes): [prework/PREREADING.md](prework/PREREADING.md).
+4. Optional reading: [prework/PREREADING.md](prework/PREREADING.md).
 
 ## No local install? Run in the browser
 

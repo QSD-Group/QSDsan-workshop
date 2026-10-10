@@ -2,7 +2,7 @@
 
 One page. The workshop is hands-on: you will run and edit short Jupyter notebooks. You do not need TEA, LCA, or QSDsan experience. We explain those as we go.
 
-## Everyone (about 10 minutes to check)
+## Everyone
 
 You should be able to:
 
@@ -11,13 +11,13 @@ You should be able to:
 - Read an error message and say which line it points to.
 - Restart the kernel (menu: Kernel, Restart) when asked.
 
-If any of these is new to you, spend 30 minutes with the [Jupyter tips page](https://qsdsan.readthedocs.io/en/latest/tutorials/jupyter_tips.html) and the [Jupyter documentation](https://docs.jupyter.org/en/latest/), then run `setup/check_environment.py` (or the Colab notebook) to practice.
+If any of these is new to you, start with the [Jupyter tips page](https://qsdsan.readthedocs.io/en/latest/tutorials/jupyter_tips.html) and the [Jupyter documentation](https://docs.jupyter.org/en/latest/), then run `setup/check_environment.py` (or the Colab notebook) to practice.
 
 ## Pick your level
 
 | Level | You can | What to expect | What to do beforehand |
 |---|---|---|---|
-| **New to Python** | Not write code yet | Notebooks are pre-filled, so you can run cells and follow along. You will not be able to do every exercise on your own, and that is fine. | Use Colab or Binder (no install). Work through the primer below, parts 1 to 3 (about 2 hours). Do not worry about finishing it. |
+| **New to Python** | Not write code yet | Notebooks are pre-filled, so you can run cells and follow along. You will not be able to do every exercise on your own, and that is fine. | Use Colab or Binder (no install). Work through the primer below, parts 1 to 3. Do not worry about finishing it. |
 | **Basic** | Read code, change values | You can do the core exercises by editing values and running cells. | Skim the primer parts you are unsure about. Know what a variable, list, dictionary, function call, and `import` are. |
 | **Intermediate** | Write scripts and small functions | Core exercises plus tasks that need a short function or loop. | Nothing required. Know basic pandas (`DataFrame`, selecting columns) and matplotlib plots. |
 | **Advanced** | Build packages, write classes | Optional extension tasks, for example writing a custom unit as a Python class. | Nothing required. Look at tutorials 4 and 5 (SanUnit) if you want to start early. |
