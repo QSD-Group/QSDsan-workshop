@@ -1,13 +1,25 @@
 """
 QSDsan workshop environment check.
 
-Run it once before the workshop, in the environment you plan to use:
+Run it once before the workshop, with the same Python (environment) that you
+will use in the workshop. Use whichever way fits your setup:
 
-    python check_environment.py
+1. Terminal (Anaconda Prompt, PowerShell, Terminal), after activating your
+   environment, from the folder containing this file:
 
-or, inside Jupyter or Spyder:
+       python check_environment.py
 
-    %run check_environment.py
+2. Any editor or IDE (VS Code, Spyder, PyCharm, and others): open this file,
+   make sure the editor is set to your QSDsan environment's Python, and use its
+   Run button (Spyder: F5; VS Code: "Run Python File"; PyCharm: right-click,
+   Run). See INSTALL.md section 5 for how to select the environment.
+
+3. Jupyter (notebook, JupyterLab, or an IPython console), in a cell or console
+   with the QSDsan kernel selected:
+
+       %run check_environment.py
+
+   Put the file in the notebook's folder, or give the full path.
 
 It prints PASS, WARN, or FAIL for each check, with a hint for anything that is
 not PASS, and ends with a summary. The whole run takes about 1 to 2 minutes
@@ -55,7 +67,8 @@ def check_python():
         record('PASS', 'Python version', detail)
     else:
         record('FAIL', 'Python version', detail,
-               'QSDsan needs Python 3.12 or newer. Create a new environment '
+               'The workshop needs Python 3.12 or newer (QSDsan 1.5.3 does not '
+               'install on older versions). Create a new environment '
                'with Python 3.12 (see INSTALL.md) and run this check there.')
 
 
@@ -206,14 +219,18 @@ def check_dynamic():
 
 
 def check_diagram():
-    """Optional: system diagrams need the Graphviz program, not only the Python package."""
-    import shutil
-    if shutil.which('dot'):
-        record('PASS', 'Graphviz program (optional)', shutil.which('dot'))
-    else:
-        record('WARN', 'Graphviz program (optional)', 'dot not found on PATH',
-               'Only needed for sys.diagram(). Install Graphviz from graphviz.org, '
-               'or with conda: conda install graphviz. You can skip this.')
+    """System diagrams need the Graphviz program, not only the Python package."""
+    hint = ('Install the Graphviz program (not only the Python package), then close '
+            'and reopen your terminal or editor. See "Graphviz" in INSTALL.md.')
+    try:
+        import graphviz
+        graphviz.Digraph().pipe(format='svg')  # renders with the dot program
+        record('PASS', 'Graphviz (diagrams)', 'dot program works')
+    except ImportError:
+        record('FAIL', 'Graphviz (diagrams)', 'Python package graphviz not found',
+               'Run: pip install graphviz. ' + hint)
+    except Exception as e:
+        record('FAIL', 'Graphviz (diagrams)', f'{type(e).__name__}: {e}'.split('\n')[0], hint)
 
 
 def main():
