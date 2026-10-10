@@ -78,6 +78,11 @@ def check_package(import_name, label=None, required=True, hint=''):
         mod = importlib.import_module(import_name)
     except Exception as e:
         status = 'FAIL' if required else 'WARN'
+        if 'numpy' in str(e) and not isinstance(e, ModuleNotFoundError):
+            # Typical after pip changed numpy in a session that already loaded it.
+            hint = ('This looks like a numpy version mismatch. Restart the Python '
+                    'session or kernel (Colab: Runtime, Restart session; Jupyter: '
+                    'Kernel, Restart) and run the check again.')
         record(status, label, f'cannot import ({type(e).__name__}: {e})',
                hint or f'Run: pip install {label}')
         return None
