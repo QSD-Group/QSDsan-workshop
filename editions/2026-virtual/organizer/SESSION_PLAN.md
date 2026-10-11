@@ -46,41 +46,47 @@ Objectives: after this part, participants can (1) explain what costs `TEA` inclu
 | Min | Content | Source | Type |
 |---|---|---|---|
 | 0 to 5 | How QSDsan joins simulation, TEA, and LCA; comparison with SuperPro and LCA software | Tutorials 7, 8 intros | Talk |
-| 5 to 22 | TEA: cost components, capital cost (unit `_cost`, the `cost` decorator, cost indices), parameters, NPV and EAC, depreciation | Tutorial 7 sections 1 and 3, tutorial 5 section 3.2 | Demo, exercise 4 (levels 1, 2) |
-| 22 to 42 | LCA: impact indicators and items, construction, electricity, stream impacts; impact tables and allocation | Tutorial 8 | Demo, exercise 5 (levels 1, 2) |
-| 42 to 50 | Cost vs environment trade-off; pitfalls (CEPCI year, purchase vs installed, static inventory) | Tutorial 8 section 5.6, tutorial 14 section 3 | Demo |
+| 5 to 22 | TEA: cost categories, capital cost (unit `_cost`, `F_BM`, the `cost` decorator with size scaling and CEPCI), NPV, EAC, break-even fee | Tutorial 7 sections 1 and 3, tutorial 5 section 3.2 | Demo, exercises 1, 2 (levels 1, 2) |
+| 22 to 42 | LCA: impact indicators and items, construction, transportation, stream impacts, electricity as a function; totals and per m3 | Tutorial 8 | Demo, exercise 3 (level 1) |
+| 42 to 50 | Cost vs environment trade-off; pitfalls (CEPCI year, purchase vs installed, static inventory) | Tutorial 8 section 5.6, tutorial 14 section 3 | Demo, exercise 4 (level 2) |
 
-Exercises: (4) change the discount rate, lifetime, and electricity price and read how NPV changes (level 1); override one unit's cost (level 2). (5) read the impact breakdown and change a characterization factor (level 1); add a stream impact item (level 2).
+Exercises: (1) change the discount rate and compare both plants (level 1). (2) change the anaerobic plant's capital cost and compare break-even fees (level 2). (3) change the grid carbon intensity and compare footprints (level 1). (4) add an environmental impact to the bicarbonate dose and recompute with a new `LCA` (level 2).
 
 ## Session 2: advanced
 
 ### Part 1: uncertainty and sensitivity analysis
 
-Objectives: after this part, participants can (1) set up a `Model` with parameters and metrics, (2) run an uncertainty analysis and read the results, (3) choose between rank correlation, Morris, and variance-based sensitivity methods, and (4) know when a run is too heavy for live use.
+Objectives: after this part, participants can (1) set up a `Model` with parameters (distribution, coupled or isolated) and metrics, (2) run an uncertainty analysis and read the results, (3) choose between rank correlation, Morris, and variance-based sensitivity methods, and (4) estimate the cost of an analysis and work with precomputed results when a model is expensive.
 
 | Min | Content | Source | Type |
 |---|---|---|---|
-| 0 to 5 | Recap of the example system; why uncertainty analysis; distributions (chaospy) | Tutorial 9 | Talk |
-| 5 to 20 | `Model`, `Parameter`, `Metric`; coupled vs isolated parameters | Tutorial 9 section 1 | Demo, exercise 6 (levels 1, 2) |
-| 20 to 35 | Uncertainty analysis: live with a small N; precomputed with a large N | Tutorial 9 section 2.1 | Demo |
-| 35 to 48 | Sensitivity: Spearman live; Morris and Sobol or FAST precomputed | Tutorial 9 section 2.2 | Demo, exercise 7 (levels 1, 2) |
-| 48 to 50 | Pointers: scaling to bigger systems | Docs | Talk |
+| 0 to 4 | Why uncertainty and sensitivity analysis; the question: aerobic or anaerobic under uncertainty | Tutorial 9 | Talk |
+| 4 to 14 | Recap of both plants; `Model`, `Parameter` (distribution, kind), `Metric`; one model for both plants | Tutorial 9 section 1 | Demo |
+| 14 to 24 | Uncertainty analysis: sample, evaluate, probability that the anaerobic plant wins, joint plot; how many samples | Tutorial 9 section 2.1 | Demo, exercises 1, 2 (levels 1, 2) |
+| 24 to 38 | Sensitivity: Spearman and Morris; comparing the two methods. Sobol and FAST are described in a table and left to tutorial 9 | Tutorial 9 section 2.2 | Demo, exercise 3 (level 1) |
+| 38 to 50 | Expensive models: time a small run, run counts per method (including Sobol and FAST), precomputed results from EXPOsan `bwaise` (137 parameters) | EXPOsan `bwaise` | Demo, exercise 4 (level 2) |
 
-Exercises: (6) add one parameter with a distribution and one metric (level 2; level 1 version: change a distribution's bounds). (7) read a sensitivity plot and rank the inputs (level 1); run Morris with a small N (level 2).
+Exercises: (1) repeat the uncertainty analysis with N = 50, 500, 5000 and see when the results settle (level 1). (2) widen the influent COD range and find the share of samples in which the anaerobic plant becomes cheaper (level 2). (3) compare the two sensitivity methods for the carbon advantage (level 1). (4) rank the influential inputs of another `bwaise` result from the precomputed table (level 2).
+
+Live and precomputed: the model of both plants evaluates 1,000 samples in about 1 second, so everything for that part runs live. Only the `bwaise` model is heavy (about 0.6 to 0.8 seconds per sample). Its N = 1000 table was computed ahead of time (765 seconds on one laptop) and is in `data/bwaise_modelA_N1000.csv.gz`. A live run with N = 20 (about 15 seconds) shows the workflow, controlled by `LIVE` and `N_LIVE` in the notebook.
 
 ### Part 2: dynamic simulation
 
-Objectives: after this part, participants can (1) run and inspect a dynamic simulation, (2) choose basic solver settings, (3) set up time-series inputs, and (4) see how a simple control rule can be written as a controller unit.
+Objectives: after this part, participants can (1) run and inspect a dynamic simulation of BSM1, (2) choose a solver and tolerances and know what they cost, (3) start an experiment from a steady state, (4) set up time-series inputs, and (5) say where control and hybrid modeling stand in QSDsan.
 
 | Min | Content | Source | Type |
 |---|---|---|---|
-| 0 to 5 | Static vs dynamic; comparison with WEST, GPS-X, BioWin | Tutorial 11 section 1 | Talk |
-| 5 to 20 | Load BSM1, run a short simulation, track units and streams, plot time series | Tutorial 11 section 1.1, EXPOsan `bsm1` | Demo, exercise 8 (level 1) |
-| 20 to 32 | Solver settings: method (BDF, RK23), time span, output times, state reset; effect on runtime and accuracy | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 9 (level 2) |
-| 32 to 44 | Time-series inputs: `ExogenousDynamicVariable`, `DynamicInfluent` from a file | Tutorial 11 section 3 | Demo, exercise 10 (levels 2, 3) |
-| 44 to 50 | Control with a controller unit: a custom dynamic unit that reads a state and adjusts a setpoint or input during simulation | Tutorial 11 section 2 | Optional demo, low priority (see below) |
+| 0 to 5 | Static vs dynamic; comparison with WEST, GPS-X, BioWin, SUMO | Tutorial 11 section 1 | Talk |
+| 5 to 20 | Load BSM1, why a dynamic system needs `t_span`, a 100-day spin-up, scopes and trackers, plot time series | Tutorial 11 section 1.1, EXPOsan `bsm1` | Demo, exercise 1 (level 1) |
+| 20 to 34 | Solver settings: `method`, `rtol` and `atol`, `t_eval`, `state_reset_hook`; start from a steady state | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 2 (level 2) |
+| 34 to 44 | Time-series inputs: `ExogenousDynamicVariable`, `DynamicInfluent` with the default and with your own file | Tutorial 11 section 3 | Demo, exercise 3 (level 2) |
+| 44 to 50 | Control and hybrid modeling: what exists and what does not; practical advice | Discussion | Talk |
 
-Exercises: (8) track a different unit or state and plot it (level 1). (9) compare two solver methods on a short horizon by runtime and result (level 2). (10) supply a custom influent time series (level 2); write a small dynamic unit (level 3, tutorial 11 section 2).
+Exercises: (1) track another reactor and plot its oxygen and ammonium (level 1). (2) compare three solvers by run time and result (level 2). (3) make your own influent time series and simulate it (level 2).
+
+Measured on one Windows laptop (QSDsan 1.5.3): a 100-day BSM1 run takes about 2 seconds with `BDF`; a 5-day run takes about 2 seconds with `BDF` or `LSODA`, about 10 seconds with `RK23`, about 17 seconds with `RK45`, and about 18 seconds with `Radau`. Tolerances of `rtol=1e-6`, `atol=1e-8` took 80 seconds for the same 5 days. The notebook runs in under a minute.
+
+Decisions made along the way: the plan said to precompute the BSM1 runs, but they are fast enough to run live. The influent of BSM1 is not replaced by a dynamic influent in the notebook: building a second `System` around the BSM1 units re-initialized the states and failed to converge on later passes, so time-series inputs are taught with the standalone `DynamicInfluent` and with `ExogenousDynamicVariable`. Control is a discussion, not a demo: there is no formal controller module.
 
 ## Coverage of the requested themes
 
