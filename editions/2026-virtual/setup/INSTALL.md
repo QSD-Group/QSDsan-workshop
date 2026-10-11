@@ -1,6 +1,3 @@
-<!-- MAINTAINER NOTE, delete before sending: tested on Windows 11 with Python 3.12.10 and venv only.
-     macOS, Linux, and conda commands are standard but not yet tested. -->
-
 # Installing QSDsan for the workshop
 
 Time needed: 15 to 30 minutes, mostly downloads. Please finish by the deadline in the setup email, then run the [environment check](#4-run-the-environment-check).
