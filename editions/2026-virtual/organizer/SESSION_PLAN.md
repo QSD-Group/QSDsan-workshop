@@ -68,7 +68,7 @@ Objectives: after this part, participants can (1) set up a `Model` with paramete
 
 Exercises: (1) repeat the uncertainty analysis with N = 50, 500, 5000 and see when the results settle (level 1). (2) widen the influent COD range and find the share of samples in which the anaerobic plant becomes cheaper (level 2). (3) compare the two sensitivity methods for the carbon advantage (level 1). (4) rank the influential inputs of another `bwaise` result from the precomputed table (level 2).
 
-Live and precomputed: the model of both plants evaluates 1,000 samples in about 1 second, so everything for that part runs live. Only the `bwaise` model is heavy (about 0.6 to 0.8 seconds per sample). Its N = 1000 table was computed ahead of time (765 seconds on one laptop) and is in `data/bwaise_modelA_N1000.csv.gz`. A live run with N = 20 (about 15 seconds) shows the workflow, controlled by `LIVE` and `N_LIVE` in the notebook.
+Live and precomputed: the model of both plants evaluates 1,000 samples in about 1 second, so everything for that part runs live. Only the `bwaise` model is heavy (about 0.6 to 0.8 seconds per sample). Its N = 1000 table was computed ahead of time (784 seconds on one laptop, seed 328) and is in `data/bwaise_modelA_N1000.csv.gz`. A live run with N = 20 (about 15 seconds) shows the workflow, controlled by `LIVE` and `N_LIVE` in the notebook.
 
 ### Part 2: dynamic simulation
 
