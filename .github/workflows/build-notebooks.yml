@@ -56,9 +56,13 @@ jobs:
       env:
         MPLBACKEND: Agg
       run: |
-        # Each edition runs from its own folder: the notebooks import systems.py from there.
+        # Each edition's notebooks run from their own folder: the 2022 notebooks import
+        # systems.py from there, and the 2026 notebooks read ../data.
         for d in editions/*/; do
-          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
+          # Notebooks are in the edition folder, or in its `notebooks/` subfolder.
+          nbdir="$d"
+          if [ -d "${d}notebooks" ]; then nbdir="${d}notebooks"; fi
+          (cd "$nbdir" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
             -o addopts="" -p no:cacheprovider *.ipynb)
         done
 
@@ -85,6 +89,9 @@ jobs:
         MPLBACKEND: Agg
       run: |
         for d in editions/*/; do
-          (cd "$d" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
+          # Notebooks are in the edition folder, or in its `notebooks/` subfolder.
+          nbdir="$d"
+          if [ -d "${d}notebooks" ]; then nbdir="${d}notebooks"; fi
+          (cd "$nbdir" && pytest --nbval-lax --current-env --nbval-cell-timeout=300 \
             -o addopts="" -p no:cacheprovider *.ipynb)
         done
