@@ -178,7 +178,7 @@ def check_uncertainty(qs):
         def get_flow():
             return P.outs[0].F_mass
 
-        samples = model.sample(N=4, rule='L', seed=3118)
+        samples = model.sample(N=4, rule='L', seed=328)
         model.load_samples(samples)
         model.evaluate()
         table = model.table

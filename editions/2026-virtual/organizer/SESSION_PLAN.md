@@ -78,7 +78,7 @@ Objectives: after this part, participants can (1) run and inspect a dynamic simu
 |---|---|---|---|
 | 0 to 5 | Static vs dynamic; comparison with WEST, GPS-X, BioWin, SUMO | Tutorial 11 section 1 | Talk |
 | 5 to 20 | Load BSM1, why a dynamic system needs `t_span`, a 100-day spin-up, scopes and trackers, plot time series | Tutorial 11 section 1.1, EXPOsan `bsm1` | Demo, exercise 1 (level 1) |
-| 20 to 34 | Solver settings: `method`, `rtol` and `atol`, `t_eval`, `state_reset_hook`; start from a steady state | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 2 (level 2) |
+| 20 to 34 | Solver settings: `method`, `rtol` and `atol`, `state_reset_hook`, `export_state_to`; start from a steady state | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 2 (level 2) |
 | 34 to 44 | Time-series inputs: `ExogenousDynamicVariable`, `DynamicInfluent` with the default and with your own file | Tutorial 11 section 3 | Demo, exercise 3 (level 2) |
 | 44 to 50 | Control and hybrid modeling: what exists and what does not; practical advice | Discussion | Talk |
 
