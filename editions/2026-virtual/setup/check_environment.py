@@ -22,8 +22,8 @@ will use in the workshop. Use whichever way fits your setup:
    Put the file in the notebook's folder, or give the full path.
 
 It prints PASS, WARN, or FAIL for each check, with a hint for anything that is
-not PASS, and ends with a summary. The whole run takes about 1 to 2 minutes
-(the first dynamic simulation is slow because it compiles code).
+not PASS, and ends with a summary. The first dynamic simulation is slower
+because it compiles code.
 Copy the full output into your message if you need help.
 """
 

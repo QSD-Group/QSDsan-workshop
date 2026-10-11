@@ -17,7 +17,7 @@ Use one of these. If one does not work, try the other.
 
 ### Binder (no account needed)
 
-Opens JupyterLab with QSDsan, EXPOsan, and Graphviz already installed. The first start can take a few minutes. Sessions close after a period of inactivity, so download your work.
+Opens JupyterLab with QSDsan, EXPOsan, and Graphviz already installed. Sessions close after a period of inactivity, so download your work.
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-Group/QSDsan-env/main?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252FQSD-Group%252FQSDsan-workshop%26urlpath%3Dlab%252Ftree%252FQSDsan-workshop%252Feditions%252F2026-virtual%26branch%3D2026-virtual)
 
@@ -25,6 +25,6 @@ Run `check_environment.py` there to confirm it works (open it from the file brow
 
 ### Google Colab (Google account needed)
 
-Installs QSDsan 1.5.3 in the Colab session (3 to 5 minutes), then runs the same environment check.
+Installs QSDsan 1.5.3 in the Colab session, then runs the same environment check.
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/QSD-Group/QSDsan-workshop/blob/2026-virtual/editions/2026-virtual/setup/colab_check.ipynb)

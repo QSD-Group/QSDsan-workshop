@@ -40,7 +40,7 @@ The sessions are hands-on: you will run and edit short notebooks yourself. Both 
 
 ## What to do by Friday, October 16
 
-1. **Install QSDsan** by following the setup guide: [MATERIALS LINK]/setup/INSTALL.md. It takes about half an hour, mostly downloads. If you already have QSDsan, please still create a new environment, because the workshop uses version 1.5.3.
+1. **Install QSDsan** by following the setup guide: [MATERIALS LINK]/setup/INSTALL.md. Most of the time is spent on downloads. If you already have QSDsan, please still create a new environment, because the workshop uses version 1.5.3.
 2. **Run the environment check** (`check_environment.py`, in the same folder). It prints PASS or FAIL for each item, with a suggested fix for anything that fails. The last line should say **READY**.
 3. **Reply to this email** with that last line (or "READY"). If anything fails, paste the full output of the check instead, and we will help you.
 

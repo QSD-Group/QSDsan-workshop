@@ -15,7 +15,7 @@ Meeting ID: [MEETING ID], Passcode: [PASSCODE]
 ## Before you join
 
 - Download the session 2 notebooks from [MATERIALS LINK]. Use the same environment as session 1, so no new installation is needed. Please run `check_environment.py` once more if you changed anything since then.
-- Some simulations take a few minutes. For uncertainty analysis we provide precomputed results and a small sample-size option, so you can follow along even on a slow computer.
+- Some simulations are slow. For uncertainty analysis we provide precomputed results and a small sample-size option, so you can follow along even on a slow computer.
 - If you use Google Colab or Binder, the session resets between days, so open it again and repeat the setup cell.
 
 ## Missed session 1?

@@ -1,6 +1,6 @@
 # Installing QSDsan for the workshop
 
-Time needed: 15 to 30 minutes, mostly downloads. Please finish by the deadline in the setup email, then run the [environment check](#4-run-the-environment-check).
+Most of the time is spent on downloads. Please finish by the deadline in the setup email, then run the [environment check](#4-run-the-environment-check).
 
 No local install possible? Use the browser option in section 6.
 
@@ -105,7 +105,7 @@ Run `check_environment.py` (in the same folder as this guide) with the **same Py
 - **Editor or IDE** (VS Code, Spyder, PyCharm, others): open the file, select your QSDsan environment as the interpreter (section 5), and use the editor's Run button (Spyder: F5; VS Code: "Run Python File"; PyCharm: right-click, Run).
 - **Jupyter** (notebook, JupyterLab, IPython console): with the QSDsan kernel selected, run `%run check_environment.py` in a cell. Use the full path if the file is not in the notebook's folder.
 
-It takes 1 to 2 minutes (the first dynamic simulation compiles code). Each line shows PASS, WARN, or FAIL. A FAIL line includes a suggested fix. The last line should say **READY**. WARN lines do not block the workshop. The first line of output shows which Python ran the check, so you can confirm it is the right one.
+The first dynamic simulation compiles code, so it is the slowest part. Each line shows PASS, WARN, or FAIL. A FAIL line includes a suggested fix. The last line should say **READY**. WARN lines do not block the workshop. The first line of output shows which Python ran the check, so you can confirm it is the right one.
 
 If something still fails, reply to the setup email with the full output.
 
@@ -120,7 +120,7 @@ Whatever you use, the environment check must be run with the same Python that yo
 
 ## 6. No local install: run in the browser
 
-Use the Google Colab or Binder links in the setup email. They need no installation. Colab requires a Google account. Binder needs none but can take a few minutes to start, and sessions end after a period of inactivity, so download anything you want to keep. If one does not work, try the other.
+Use the Google Colab or Binder links in the setup email. They need no installation. Colab requires a Google account. Binder needs none but can be slow to start, and sessions end after a period of inactivity, so download anything you want to keep. If one does not work, try the other.
 
 ## Common errors
 
