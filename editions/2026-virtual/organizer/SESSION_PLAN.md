@@ -72,13 +72,13 @@ Live and precomputed: the model of both plants evaluates 1,000 samples in about 
 
 ### Part 2: dynamic simulation
 
-Objectives: after this part, participants can (1) run and inspect a dynamic simulation of BSM1, (2) choose a solver and tolerances and know what they cost, (3) start an experiment from a steady state, (4) set up time-series inputs, and (5) say where control and hybrid modeling stand in QSDsan.
+Objectives: after this part, participants can (1) run and inspect a dynamic simulation of BSM1, (2) choose a solver and tolerances and know what they cost, (3) set up time-series inputs, and (4) say where control and hybrid modeling stand in QSDsan.
 
 | Min | Content | Source | Type |
 |---|---|---|---|
 | 0 to 5 | Static vs dynamic; comparison with WEST, GPS-X, BioWin, SUMO | Tutorial 11 section 1 | Talk |
 | 5 to 20 | Load BSM1, why a dynamic system needs `t_span`, a 100-day spin-up, scopes and trackers, plot time series | Tutorial 11 section 1.1, EXPOsan `bsm1` | Demo, exercise 1 (level 1) |
-| 20 to 34 | Solver settings: `method`, `rtol` and `atol`, `state_reset_hook`, `export_state_to`; start from a steady state | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 2 (level 2) |
+| 20 to 34 | Solver settings: `method`, `rtol` and `atol`, `state_reset_hook`, `export_state_to` | Tutorial 11, tutorial 14 sections 2.3 and 2.6 | Demo, exercise 2 (level 2) |
 | 34 to 44 | Time-series inputs: `ExogenousDynamicVariable`, `DynamicInfluent` with the default and with your own file | Tutorial 11 section 3 | Demo, exercise 3 (level 2) |
 | 44 to 50 | Control and hybrid modeling: what exists and what does not; practical advice | Discussion | Talk |
 
