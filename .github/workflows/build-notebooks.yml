@@ -11,7 +11,7 @@
 #     warning that the next QSDsan release will break the workshop materials.
 #
 # Triggers: weekly (catches upstream drift with no commit here), on demand, and
-# on pushes/PRs that touch editions or the environment files.
+# on pushes/PRs that touch an edition folder or the environment files.
 
 name: build-notebooks
 
@@ -22,13 +22,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'editions/**'
+      - '[0-9][0-9][0-9][0-9]-*/**'
       - 'requirements.txt'
       - 'runtime.txt'
       - '.github/workflows/build-notebooks.yml'
   pull_request:
     paths:
-      - 'editions/**'
+      - '[0-9][0-9][0-9][0-9]-*/**'
       - 'requirements.txt'
       - 'runtime.txt'
       - '.github/workflows/build-notebooks.yml'
@@ -58,7 +58,7 @@ jobs:
       run: |
         # Each edition's notebooks run from their own folder: the 2022 notebooks import
         # systems.py from there, and the 2026 notebooks read ../data.
-        for d in editions/*/; do
+        for d in [0-9][0-9][0-9][0-9]-*/; do
           # Notebooks are in the edition folder, or in its `notebooks/` subfolder.
           nbdir="$d"
           if [ -d "${d}notebooks" ]; then nbdir="${d}notebooks"; fi
@@ -88,7 +88,7 @@ jobs:
       env:
         MPLBACKEND: Agg
       run: |
-        for d in editions/*/; do
+        for d in [0-9][0-9][0-9][0-9]-*/; do
           # Notebooks are in the edition folder, or in its `notebooks/` subfolder.
           nbdir="$d"
           if [ -d "${d}notebooks" ]; then nbdir="${d}notebooks"; fi
