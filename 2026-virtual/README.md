@@ -13,8 +13,6 @@ Two 2-hour Zoom sessions on Tuesdays, October 20 and October 27, 2026, 12:00 to 
 
 How the exercises work: each notebook has exercises at level 1 (change a value), level 2 (a few lines of code), and level 3 (advanced, optional). Every exercise has a hint and a solution that stays hidden until you click **Show solution**.
 
-The folder `data/` holds precomputed results used by the uncertainty notebook (an EXPOsan model that is too slow to run live). If you run that notebook locally, keep the folder structure so that the notebook finds `../data`.
-
 ## Before the workshop
 
 1. Install QSDsan: follow [setup/INSTALL.md](setup/INSTALL.md).
@@ -52,4 +50,3 @@ To check your Colab setup first, use the environment check notebook. It installs
 - `setup/`: installation guide, environment check script, and the Colab check notebook
 - `prework/`: prerequisites and optional reading
 - `notebooks/`: the four workshop notebooks
-- `data/`: precomputed results

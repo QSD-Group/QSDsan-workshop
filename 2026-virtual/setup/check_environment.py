@@ -36,6 +36,7 @@ import warnings
 
 MIN_PYTHON = (3, 12)
 MIN_QSDSAN = (1, 5, 3)  # version the workshop materials were tested with
+PINNED = 'qsdsan==1.5.3 exposan==1.5.3'  # installs everything else the workshop needs
 
 results = []  # (status, name, detail, hint)
 
@@ -84,7 +85,7 @@ def check_package(import_name, label=None, required=True, hint=''):
                     'session or kernel (Colab: Runtime, Restart session; Jupyter: '
                     'Kernel, Restart) and run the check again.')
         record(status, label, f'cannot import ({type(e).__name__}: {e})',
-               hint or f'Run: pip install {label}')
+               hint or f'Run: python -m pip install {PINNED}')
         return None
     version = getattr(mod, '__version__', None)
     if version is None:
@@ -105,7 +106,7 @@ def check_qsdsan_version(qs):
         return
     want = '.'.join(map(str, MIN_QSDSAN))
     record('FAIL', 'QSDsan version', f'{qs.__version__} is older than {want}',
-           f'Run: pip install --upgrade "qsdsan>={want}" "exposan>={want}"')
+           f'Run: python -m pip install --upgrade {PINNED}')
 
 
 def check_jupyter():
@@ -186,10 +187,10 @@ def check_uncertainty(qs):
             record('PASS', 'Uncertainty analysis (Model, 4 samples)')
         else:
             record('FAIL', 'Uncertainty analysis', 'unexpected result table',
-                   'Run: pip install --upgrade qsdsan SALib chaospy')
+                   f'Run: python -m pip install --upgrade {PINNED}')
     except Exception as e:
         record('FAIL', 'Uncertainty analysis', f'{type(e).__name__}: {e}',
-               'Run: pip install --upgrade qsdsan SALib chaospy')
+               f'Run: python -m pip install --upgrade {PINNED}')
         traceback.print_exc()
     finally:
         try:
@@ -243,11 +244,11 @@ def main():
     print('=' * 40)
     check_python()
     qs = check_package('qsdsan', required=True,
-                       hint='Run: pip install qsdsan exposan')
+                       hint=f'Run: python -m pip install {PINNED}')
     check_qsdsan_version(qs)
     check_package('biosteam')
     check_package('thermosteam')
-    check_package('exposan', hint='Run: pip install exposan')
+    check_package('exposan', hint=f'Run: python -m pip install {PINNED}')
     for pkg in ('numpy', 'scipy', 'pandas', 'matplotlib', 'SALib', 'chaospy', 'seaborn', 'numba'):
         check_package(pkg)
     check_jupyter()
