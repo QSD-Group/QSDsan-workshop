@@ -8,7 +8,7 @@ This module is developed by:
 
     Yalin Li <mailto.yalin.li@gmail.com>
 
-This module is under the University of Illinois/NCSA Open Source License.
+This module is under the BSD 3-Clause License.
 Please refer to https://github.com/QSD-Group/QSDsan-workshop/blob/main/LICENSE.txt
 for license details.
 '''

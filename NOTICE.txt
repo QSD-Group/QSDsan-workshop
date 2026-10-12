@@ -1,0 +1,6 @@
+Files under 2022-EES/dmsan/ are from the DMsan project
+(https://github.com/QSD-Group/DMsan), which is under the
+University of Illinois/NCSA Open Source License, copyright
+Quantitative Sustainable Design Group and contributors. Their headers
+are kept as is. Everything else in this repository is under the
+BSD 3-Clause License in LICENSE.txt.
