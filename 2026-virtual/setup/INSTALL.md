@@ -120,7 +120,7 @@ Whatever you use, the environment check must be run with the same Python that yo
 
 ## 6. No local install: run in the browser
 
-Use the Google Colab or Binder links in the setup email. They need no installation. Colab requires a Google account. Binder needs none but can be slow to start, and sessions end after a period of inactivity, so download anything you want to keep. If one does not work, try the other.
+Use the Google Colab or Binder badges in the README of the workshop folder (the setup email links to it). The README also explains how to run the environment check there. They need no installation. Colab requires a Google account. Binder needs none but can be slow to start, and sessions end after a period of inactivity, so download anything you want to keep. If one does not work, try the other.
 
 ## Common errors
 

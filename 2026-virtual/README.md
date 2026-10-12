@@ -16,7 +16,7 @@ How the exercises work: each notebook has exercises at level 1 (change a value),
 ## Before the workshop
 
 1. Install QSDsan: follow [setup/INSTALL.md](setup/INSTALL.md).
-2. Run the environment check: [setup/check_environment.py](setup/check_environment.py). The last line should say READY.
+2. Run the environment check, `setup/check_environment.py`, as described in section 4 of the installation guide. The last line should say READY.
 3. Check what you need to know: [prework/PREREQUISITES.md](prework/PREREQUISITES.md).
 4. Optional reading: [prework/PREREADING.md](prework/PREREADING.md).
 
@@ -26,11 +26,20 @@ Use one of these. If one does not work, try the other.
 
 ### Binder (no account needed)
 
-Opens JupyterLab with QSDsan, EXPOsan, and Graphviz already installed. Use the Binder badge of a notebook in the table above, or open the whole folder with this badge. Sessions close after a period of inactivity, so download your work.
+Opens JupyterLab with QSDsan, EXPOsan, and Graphviz already installed. Sessions close after a period of inactivity, so download your work.
+
+- **To work through a notebook:** click the Binder badge in its row of the table above.
+- **To check your setup first:** click this badge, which opens the whole workshop folder:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QSD-Group/QSDsan-env/workshop-2026-virtual?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252FQSD-Group%252FQSDsan-workshop%26urlpath%3Dlab%252Ftree%252FQSDsan-workshop%252F2026-virtual%26branch%3Dmain)
 
-Run `check_environment.py` there to confirm it works (open it from the file browser, or in a notebook cell run `%run setup/check_environment.py`).
+  Then:
+
+  1. In the Launcher, click the **Python 3** tile under **Notebook** to create a new notebook in that folder (or use the menu **File**, **New**, **Notebook**).
+  2. Type `%run setup/check_environment.py` in its first cell and press **Shift+Enter**.
+  3. The last line of the output should say **READY**. You can keep working in the same session: open the notebooks from the `notebooks` folder in the file browser.
+
+  Opening `check_environment.py` from the file browser only shows its code, it does not run it. If your new notebook is inside the `notebooks` folder, use `%run ../setup/check_environment.py` instead.
 
 ### Google Colab (Google account needed)
 
@@ -41,7 +50,7 @@ Colab does not include QSDsan, so each notebook starts with an install cell that
 3. Restart the session (menu **Runtime**, **Restart session**), even if Colab does not ask.
 4. Run the notebook from the top. The install cell now does nothing. On your own computer that cell never does anything.
 
-To check your Colab setup first, use the environment check notebook. It installs QSDsan 1.5.3, then runs the same environment check.
+To check your Colab setup first, open the environment check notebook below. Run its first code cell (it installs QSDsan 1.5.3), restart the session (**Runtime**, **Restart session**), then run its second code cell. The last line should say **READY**. This only tests your setup: each workshop notebook installs QSDsan itself in its first code cell.
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/QSD-Group/QSDsan-workshop/blob/main/2026-virtual/setup/colab_check.ipynb)
 
