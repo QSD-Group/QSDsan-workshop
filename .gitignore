@@ -21,3 +21,5 @@ conftest.py
 docs/build/*
 dist
 htmlcov
+# Organizer-only material for each edition
+**/organizer/
