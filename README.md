@@ -4,9 +4,10 @@ Materials for workshops on [QSDsan](https://github.com/QSD-Group/QSDsan), organi
 
 ## Editions
 
-| Edition | Date | Venue / audience | Length | Folder |
-|---|---|---|---|---|
-| 2022 EES Symposium | 2022-04-22 | 27th Environmental Engineering and Science Symposium (in person) | One Hour | [2022-EES](2022-EES) |
+| Edition | Date | Venue / audience | Length | Folder | Recording |
+|---|---|---|---|---|---|
+| 2022 EES Symposium | 2022-04-22 | 27th Environmental Engineering and Science Symposium (in person) | One Hour | [2022-EES](2022-EES) | [Video](https://youtu.be/C4Wk2bhsvnk) |
+| 2026 Virtual Workshop | 2026-10-20 and 2026-10-27 | Open registration, on Zoom | Two 2-hour sessions | [2026-virtual](2026-virtual) | [Session 1](https://youtu.be/YrBc9CSg9kU), [Session 2](https://youtu.be/7zbhwiWNN-A) |
 
 ## Running an edition in your browser
 Each edition's README gives its launch links (e.g., Binder, Google Colab), so nothing needs to be installed. Launchers differ in where they read the environment from (each edition's pins are in its own `requirements.txt`, which CI installs into a fresh environment; the fast Binder links use a prebuilt environment from [QSDsan-env](https://github.com/QSD-Group/QSDsan-env), selected by an environment tag), but all of them should point to the git tag named after the edition (e.g., `2022-EES`), so that an earlier edition is rebuilt exactly as it was taught.
